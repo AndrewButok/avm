@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/23 18:47:40 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/23 18:48:14 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
 }
 
 bool OperandFactory::_isNumber(const std::string &value) {
+	// BIG TRASH
 	bool dot = false;
 	for (char c: value) {
 		if (!isnumber(static_cast<int>(c)) && c != '.')
