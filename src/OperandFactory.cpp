@@ -6,13 +6,13 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/23 17:01:13 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/23 18:47:40 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <vector>
 #include "OperandFactory.hpp"
-#include "Operand/Operand.hpp"
+#include "Operand.hpp"
 
 OperandFactory* OperandFactory::_instance = nullptr;
 
@@ -103,7 +103,7 @@ const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
 	return (this->*ctf)(value);
 }
 
-const bool OperandFactory::_isNumber(const std::string &value) {
+bool OperandFactory::_isNumber(const std::string &value) {
 	bool dot = false;
 	for (char c: value) {
 		if (!isnumber(static_cast<int>(c)) && c != '.')

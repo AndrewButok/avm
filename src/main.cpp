@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
-#include "src/Operand/Operand.hpp"
+#include <vector>
+#include <sstream>
+#include "OperandFactory.hpp"
 
 int main() {
 //	for (int a = std::numeric_limits<char>::min(); a <= std::numeric_limits<char>::max(); a++) {
@@ -21,6 +23,14 @@ int main() {
 //	} catch (std::exception &ex) {
 //		std::cout << ex.what() << std::endl;
 //	}
-	std::cout << std::numeric_limits<float>::max()/ 0.5f<< std::endl;
+//	const Float	*f1 = new Float(std::numeric_limits<float>::max()),
+//			*f2 = new Float(2),
+//			*f3 = dynamic_cast<const Float *>(*f1 * *f2);
+	std::stringstream s;
+	s << std::numeric_limits<double>::max();
+	double f;
+	s >> f;
+	std::cout << f << std::endl;
+	system("leaks Abstract-VM");
 	return 0;
 }

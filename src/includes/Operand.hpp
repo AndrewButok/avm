@@ -14,8 +14,8 @@
 #define AVM_OPERAND_HPP
 
 #include <sstream>
-#include "IOperand.hpp"
 #include <cmath>
+#include "IOperand.hpp"
 
 template <typename Base>
 class Operand: public IOperand{

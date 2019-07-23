@@ -6,14 +6,14 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:13 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/23 17:00:22 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/23 18:47:41 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AVM_OPERANDFACTORY_HPP
 #define AVM_OPERANDFACTORY_HPP
 
-#include <Operand/IOperand.hpp>
+#include "IOperand.hpp"
 
 class OperandFactory {
 private:
@@ -22,7 +22,7 @@ private:
 
 	std::vector<CreateTypeFunc> *_functions;
 
-	static const bool _isNumber(const std::string &value);
+	static bool _isNumber(const std::string &value);
 	const IOperand *createInt8(const std::string &value) const;
 	const IOperand *createInt16(const std::string &value) const;
 	const IOperand *createInt32(const std::string &value) const;
