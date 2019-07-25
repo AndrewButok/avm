@@ -1,14 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/07/25 13:58:33 by abutok            #+#    #+#             */
+/*   Updated: 2019/07/25 17:21:00 by abutok           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include <sstream>
-#include "OperandFactory.hpp"
+#include <Token.hpp>
+#include "Executor.hpp"
 
 int main() {
 	OperandFactory *of = OperandFactory::getInstance();
-	const IOperand *f1 = of->createOperand(IOperand::eOperandType::Int16, "45"),
-			*f2 = of->createOperand(IOperand::eOperandType::Int16, "20"),
-			*f3 = *f1 + *f2;
-	std::cout << f3->toString() <<std::endl;
+	const IOperand *f1 = of->createOperand(IOperand::eOperandType::Int8, "45"),
+			*f2 = of->createOperand(IOperand::eOperandType::Int8, "25");
+	Executor *executor = Executor::getInstance();
+	executor->pushToStack(f1);
+	executor->pushToStack(f2);
+	executor->add();
+	executor->dumpStack();
+	executor->print();
+	system("leaks Abstract-VM");
 	return 0;
 }
