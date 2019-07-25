@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:13 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/23 18:47:41 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/25 02:14:46 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ private:
 
 	std::vector<CreateTypeFunc> *_functions;
 
-	static bool _isNumber(const std::string &value);
 	const IOperand *createInt8(const std::string &value) const;
 	const IOperand *createInt16(const std::string &value) const;
 	const IOperand *createInt32(const std::string &value) const;
@@ -38,6 +37,7 @@ public:
 	virtual ~OperandFactory();
 	static OperandFactory *getInstance();
 	const IOperand *createOperand(eOperandType type, const std::string &value);
+	const IOperand *createOperand(IOperand::eOperandType type, const IOperand *);
 
 };
 

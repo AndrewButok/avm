@@ -20,7 +20,6 @@
 template <typename Base>
 class Operand: public IOperand{
 private:
-	typedef IOperand::eOperandType Type;
 	static void		_checkType(const IOperand &lo, const IOperand &ro);
 	Base			_val;
 public:
@@ -111,7 +110,7 @@ template<typename Base>
 const IOperand *Operand<Base>::operator+(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
-	if (this->getType() < Type::Float) {
+	if (this->getType() < IOperand::eOperandType::Float) {
 		if (casted_ro._val > 0 &&
 			this->_val > std::numeric_limits<Base>::max() - casted_ro._val)
 			throw std::overflow_error("Operand overflow");
@@ -126,7 +125,7 @@ template<typename Base>
 const IOperand *Operand<Base>::operator-(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
-	if (this->getType() < Type::Float) {
+	if (this->getType() < IOperand::eOperandType::Float) {
 		if (casted_ro._val > 0 &&
 			this->_val < std::numeric_limits<Base>::min() + casted_ro._val)
 			throw std::overflow_error("Operand underflow");
@@ -151,7 +150,7 @@ template<typename Base>
 const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
-	if (this->getType() < Type::Float) {
+	if (this->getType() < IOperand::eOperandType::Float) {
 		if ((casted_ro._val > 0 && this->_val > 0
 			 && this->_val > std::numeric_limits<Base>::max() / casted_ro._val)
 			|| (casted_ro._val < 0 && this->_val < 0
@@ -206,10 +205,18 @@ const std::string &Operand<Base>::toString() const {
 	return *(new std::string(ss.str()));
 }
 
+template<>
+const std::string &Operand<char>::toString() const {
+	std::stringstream ss;
+	ss << static_cast<int>(this->_val);
+	return *(new std::string(ss.str()));
+}
+
+
 template<typename Base>
 void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {
-	if (lo.getType() == Type::UnknownOperand ||
-		ro.getType() == Type::UnknownOperand ||
+	if (lo.getType() == IOperand::eOperandType::UnknownOperand ||
+		ro.getType() == IOperand::eOperandType::UnknownOperand ||
 		lo.getType() != ro.getType())
 		throw std::runtime_error("Wrong operand type");
 }
