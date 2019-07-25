@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 18:51:02 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 02:01:23 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/25 12:41:11 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,27 @@
 
 class Executor {
 private:
+	enum class eOperatorType: unsigned int;
+	typedef const IOperand* (IOperand::*Operator)(const IOperand&) const;
 	static Executor *_instance;
 	std::vector<const IOperand *> *_stack;
+	std::vector<Operator> *_operators;
 	OperandFactory *_operandFactory;
 
 	Executor();
 	Executor(const Executor &executor) = default;
 	Executor &operator=(const Executor&) = default;
-	void _checkStack(int) const;
+	void _checkStack(unsigned int) const;
+	void _executeArithmeticOperator(eOperatorType type);
+
+	enum class eOperatorType: unsigned int {
+		Add = 0,
+		Sub = 1,
+		Mul = 2,
+		Div = 3,
+		Mod = 4
+	};
+
 public:
 	virtual ~Executor();
 	static Executor *getInstance();

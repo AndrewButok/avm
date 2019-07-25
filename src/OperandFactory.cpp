@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 02:18:22 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/25 15:01:43 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,28 +99,33 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 		return nullptr;
 	if (operand->getType() == IOperand::eOperandType::UnknownOperand ||
 		operand->getType() >= type)
-		type = operand->getType();
+		throw std::runtime_error("Operand type is greater than type sent to function");
 	const IOperand *result = nullptr;
-	std::string strOperandVal = operand->toString();
-	switch (type){
-		case IOperand::eOperandType::Int8:
-			result = this->createOperand(IOperand::eOperandType ::Int8, strOperandVal);
-			break;
-		case IOperand::eOperandType::Int16:
-			result = this->createOperand(IOperand::eOperandType ::Int16, strOperandVal);
-			break;
-		case IOperand::eOperandType::Int32:
-			result = this->createOperand(IOperand::eOperandType ::Int32, strOperandVal);
-			break;
-		case IOperand::eOperandType::Float:
-			result = this->createOperand(IOperand::eOperandType ::Float, strOperandVal);
-			break;
-		case IOperand::eOperandType::Double:
-			result = this->createOperand(IOperand::eOperandType ::Float, strOperandVal);
-			break;
-		default:
-			throw std::runtime_error("Unknown copy error");
+	const std::string *strOperandVal = &(operand->toString());
+	try {
+		switch (type){
+			case IOperand::eOperandType::Int8:
+				result = this->createOperand(IOperand::eOperandType ::Int8, *strOperandVal);
+				break;
+			case IOperand::eOperandType::Int16:
+				result = this->createOperand(IOperand::eOperandType ::Int16, *strOperandVal);
+				break;
+			case IOperand::eOperandType::Int32:
+				result = this->createOperand(IOperand::eOperandType ::Int32, *strOperandVal);
+				break;
+			case IOperand::eOperandType::Float:
+				result = this->createOperand(IOperand::eOperandType ::Float, *strOperandVal);
+				break;
+			case IOperand::eOperandType::Double:
+				result = this->createOperand(IOperand::eOperandType ::Float, *strOperandVal);
+				break;
+			default:
+				throw std::runtime_error("Unknown copy error");
+		}
+		delete strOperandVal;
+		return result;
+	} catch (std::exception &ex){
+		delete strOperandVal;
+		throw ex;
 	}
-	delete (&strOperandVal);
-	return result;
 }

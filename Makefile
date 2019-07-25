@@ -6,7 +6,7 @@
 #    By: abutok <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/23 18:03:27 by abutok            #+#    #+#              #
-#    Updated: 2019/07/23 18:24:01 by abutok           ###   ########.fr        #
+#    Updated: 2019/07/25 12:07:55 by abutok           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ COMPILER = clang++ -Wall -Werror -Wextra -std=c++11
 INCLUDEDIR = ./src/includes/
 INCLUDEFILES  = IOperand.hpp Operand.hpp OperandFactory.hpp Executor.hpp
 INCLUDE = $(addprefix $(INCLUDEDIR), $(INCLUDEFILES))
+BOOSTINCLUDE = /Users/abutok/.brew/opt/boost/include
 # Sources
 SRCDIR = ./src/
 SRC = OperandFactory.cpp Executor.cpp main.cpp
@@ -30,13 +31,13 @@ BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))
 all: $(NAME)
 
 $(NAME): $(BINDIR) $(BIN)
-	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) $(BIN)
+	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN)
 
 $(BINDIR):
 	@if [ ! -d "$(BINDIR)" ]; then mkdir $(BINDIR); fi
 
 $(BINDIR)%.o: $(SRCDIR)%.cpp $(INCLUDE)
-	$(COMPILER) -c -I $(INCLUDEDIR) $< -o $@
+	$(COMPILER) -c -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $< -o $@
 
 clean:
 	if [ -d "$(BINDIR)" ]; then rm -rf $(BINDIR); fi
