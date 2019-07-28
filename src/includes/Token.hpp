@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 14:08:37 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 17:45:03 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/27 01:53:27 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,9 @@ public:
 		ConstructorInt32 = 14,
 		ConstructorFloat = 15,
 		ConstructorDouble = 16,
+		OBrace = 17,
+		CBrace = 18,
+		CommentBegin = 19
 	};
 };
 
