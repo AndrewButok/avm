@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 14:08:37 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/27 01:53:27 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/28 16:40:57 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,10 @@ private:
 	std::string _value;
 	eTokenType _type;
 
-	Token() = default;
+	Token();
 public:
-	Token(std::string &value, eTokenType type);
+	explicit Token(std::string &value);
+	explicit Token(eTokenType type);
 	Token(const Token&) = default;
 	Token &operator=(const Token&) = default;
 	virtual ~Token() = default;
@@ -45,14 +46,15 @@ public:
 		Mod = 9,
 		Print = 10,
 		Exit = 11,
-		ConstructorInt8 = 12,
-		ConstructorInt16 = 13,
-		ConstructorInt32 = 14,
-		ConstructorFloat = 15,
-		ConstructorDouble = 16,
-		OBrace = 17,
-		CBrace = 18,
-		CommentBegin = 19
+		WS = 12,
+		ConstructorInt8 = 13,
+		ConstructorInt16 = 14,
+		ConstructorInt32 = 15,
+		ConstructorFloat = 16,
+		ConstructorDouble = 17,
+		OBrace = 19,
+		CBrace = 20,
+		CommentBegin = 21
 	};
 };
 

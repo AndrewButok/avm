@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/26 16:21:06 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/28 11:05:37 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/28 16:59:25 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,37 +15,20 @@
 
 #include <vector>
 #include <map>
-#include <boost/spirit/include/lex_lexertl.hpp>
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 #include "Token.hpp"
 
-namespace lex = boost::spirit::lex;
+class Lexer{
+private:
+	typedef Token::eTokenType type;
 
-template <typename T>
-class Lexer: lex::lexer<T>{
+	static std::map<std::string, type> _nonValueTokens;
+	static Token* _getNonValueToken(const std::string &row, size_t &pos);
+	static Token* _getValueToken(const std::string &row, size_t &pos);
+	static void _trimTokenVector(std::vector<Token *> &vector);
+	static void _concatRaw(std::vector<Token *> &vector);
+	static void _initializeNVT();
 public:
-	Lexer() {
-		this->self.add
-			("push", Token::eTokenType::Push)
-			("")
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			()
-			;
-	}
-
+	static std::vector<Token *> *tokenize(const std::string &row);
 };
 
 #endif

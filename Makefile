@@ -6,7 +6,7 @@
 #    By: abutok <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/23 18:03:27 by abutok            #+#    #+#              #
-#    Updated: 2019/07/25 12:07:55 by abutok           ###   ########.fr        #
+#    Updated: 2019/07/28 18:05:28 by abutok           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,12 +16,13 @@ NAME = Abstract-VM
 COMPILER = clang++ -Wall -Werror -Wextra -std=c++11
 # Includes
 INCLUDEDIR = ./src/includes/
-INCLUDEFILES  = IOperand.hpp Operand.hpp OperandFactory.hpp Executor.hpp
+INCLUDEFILES  = IOperand.hpp Operand.hpp OperandFactory.hpp Executor.hpp \
+				Token.hpp Lexer.hpp
 INCLUDE = $(addprefix $(INCLUDEDIR), $(INCLUDEFILES))
 BOOSTINCLUDE = /Users/abutok/.brew/opt/boost/include
 # Sources
 SRCDIR = ./src/
-SRC = OperandFactory.cpp Executor.cpp main.cpp
+SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp main.cpp
 # Binaries
 BINDIR = ./out/
 BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))

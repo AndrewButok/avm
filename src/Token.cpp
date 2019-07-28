@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/07/25 14:29:17 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 17:45:03 by abutok           ###   ########.fr       */
+/*   Created: 2019/07/28 19:24:21 by abutok            #+#    #+#             */
+/*   Updated: 2019/07/28 19:24:21 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 #include <iostream>
 #include "Token.hpp"
 
-Token::Token(std::string &value, Token::eTokenType type) : _value(value), _type(type) {}
+Token::Token(): _value(""), _type(eTokenType::RawValue) {}
+Token::Token(std::string &value) : _value(value), _type(eTokenType::RawValue) {}
+Token::Token(eTokenType type) : _value(""), _type(type) {}
 
 const std::string &Token::getValue() const {
 	return _value;
