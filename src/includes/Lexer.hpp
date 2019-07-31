@@ -19,9 +19,9 @@
 
 class Lexer{
 private:
-	typedef Token::eTokenType type;
+	typedef Token::eTokenType eType;
 
-	static std::map<std::string, type> _nonValueTokens;
+	static std::map<std::string, eType> _nonValueTokens;
 	static Token* _getNonValueToken(const std::string &row, size_t &pos);
 	static Token* _getValueToken(const std::string &row, size_t &pos);
 	static void _trimTokenVector(std::vector<Token *> &vector);

@@ -85,7 +85,7 @@ const IOperand *OperandFactory::createDouble(const std::string &value) const {
 const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
 											  const std::string &value) {
 	if (type == eOperandType::UnknownOperand)
-		throw std::invalid_argument("Factory method have token invalid operand type");
+		throw std::invalid_argument("Factory method have token invalid operand eType");
 	CreateTypeFunc ctf = (*this->_functions)[static_cast<unsigned int>(type)];
 	return (this->*ctf)(value);
 }
@@ -99,7 +99,7 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 		return nullptr;
 	if (operand->getType() == IOperand::eOperandType::UnknownOperand ||
 		operand->getType() >= type)
-		throw std::runtime_error("Operand type is greater than type sent to function");
+		throw std::runtime_error("Operand eType is greater than eType sent to function");
 	const IOperand *result = nullptr;
 	const std::string *strOperandVal = &(operand->toString());
 	try {

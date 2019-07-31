@@ -6,13 +6,13 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/26 23:36:42 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/28 18:41:42 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/30 23:35:54 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Lexer.hpp"
 
-std::map<std::string, Lexer::type> Lexer::_nonValueTokens {
+std::map<std::string, Lexer::eType> Lexer::_nonValueTokens {
 
 };
 
@@ -22,7 +22,7 @@ std::vector<Token *> *Lexer::tokenize(const std::string &row) {
 	for (size_t pos = 0; pos < row.size(); pos++){
 		auto *token = _getNonValueToken(row, pos);
 		if (token != nullptr) {
-			if (token->getType() == type::CommentBegin) {
+			if (token->getType() == eType::CommentBegin) {
 				delete token;
 				break;
 			}
@@ -63,11 +63,11 @@ Token *Lexer::_getValueToken(const std::string &row, size_t &pos) {
 }
 
 void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
-	while (vector[vector.size() - 1]->getType() == type::WS) {
+	while (vector[vector.size() - 1]->getType() == eType::WS) {
 		delete vector[vector.size() - 1];
 		vector.pop_back();
 	}
-	while ((*vector.begin())->getType() == type::WS) {
+	while ((*vector.begin())->getType() == eType::WS) {
 		delete *vector.begin();
 		vector.erase(vector.begin());
 	}
@@ -75,7 +75,7 @@ void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
 		if (iter + 1 != vector.end()) {
 			Token *t1 = *iter,
 				*t2 = *(iter + 1);
-			while (t1->getType() == type::WS && t2->getType() == type::WS) {
+			while (t1->getType() == eType::WS && t2->getType() == eType::WS) {
 				delete *(iter + 1);
 				vector.erase(iter + 1);
 				t2 = *(iter + 1);
@@ -86,10 +86,10 @@ void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
 
 void Lexer::_concatRaw(std::vector<Token *> &vector) {
 	for(auto iter = vector.begin(); iter != vector.end(); iter++) {
-		if ((*iter)->getType() == type::WS) {
+		if ((*iter)->getType() == eType::WS) {
 			Token *l = *(iter - 1),
 				*r = *(iter + 1);
-			if (l->getType() == type::RawValue && l->getType() == r->getType())
+			if (l->getType() == eType::RawValue && l->getType() == r->getType())
 			{
 				iter--;
 				delete *(iter + 1);
@@ -107,25 +107,25 @@ void Lexer::_concatRaw(std::vector<Token *> &vector) {
 void Lexer::_initializeNVT() {
 	if (!_nonValueTokens.empty())
 		return;
-	_nonValueTokens.insert(std::make_pair("push", type::Push));
-	_nonValueTokens.insert(std::make_pair("assert", type::Assert));
-	_nonValueTokens.insert(std::make_pair("pop", type::Pop));
-	_nonValueTokens.insert(std::make_pair("dump", type::Dump));
-	_nonValueTokens.insert(std::make_pair("add", type::Add));
-	_nonValueTokens.insert(std::make_pair("sub", type::Sub));
-	_nonValueTokens.insert(std::make_pair("mul", type::Mul));
-	_nonValueTokens.insert(std::make_pair("div", type::Div));
-	_nonValueTokens.insert(std::make_pair("mod", type::Mod));
-	_nonValueTokens.insert(std::make_pair("print", type::Print));
-	_nonValueTokens.insert(std::make_pair("exit", type::Exit));
-	_nonValueTokens.insert(std::make_pair("Int8", type::ConstructorInt8));
-	_nonValueTokens.insert(std::make_pair("Int16", type::ConstructorInt16));
-	_nonValueTokens.insert(std::make_pair("Int32", type::ConstructorInt32));
-	_nonValueTokens.insert(std::make_pair("Float", type::ConstructorFloat));
-	_nonValueTokens.insert(std::make_pair("Double", type::ConstructorDouble));
-	_nonValueTokens.insert(std::make_pair("(", type::OBrace));
-	_nonValueTokens.insert(std::make_pair(")", type::CBrace));
-	_nonValueTokens.insert(std::make_pair(";", type::CommentBegin));
-	_nonValueTokens.insert(std::make_pair(" ", type::WS));
-	_nonValueTokens.insert(std::make_pair("\t", type::WS));
+	_nonValueTokens.insert(std::make_pair("push", eType::Push));
+	_nonValueTokens.insert(std::make_pair("assert", eType::Assert));
+	_nonValueTokens.insert(std::make_pair("pop", eType::Pop));
+	_nonValueTokens.insert(std::make_pair("dump", eType::Dump));
+	_nonValueTokens.insert(std::make_pair("add", eType::Add));
+	_nonValueTokens.insert(std::make_pair("sub", eType::Sub));
+	_nonValueTokens.insert(std::make_pair("mul", eType::Mul));
+	_nonValueTokens.insert(std::make_pair("div", eType::Div));
+	_nonValueTokens.insert(std::make_pair("mod", eType::Mod));
+	_nonValueTokens.insert(std::make_pair("print", eType::Print));
+	_nonValueTokens.insert(std::make_pair("exit", eType::Exit));
+	_nonValueTokens.insert(std::make_pair("Int8", eType::ConstructorInt8));
+	_nonValueTokens.insert(std::make_pair("Int16", eType::ConstructorInt16));
+	_nonValueTokens.insert(std::make_pair("Int32", eType::ConstructorInt32));
+	_nonValueTokens.insert(std::make_pair("Float", eType::ConstructorFloat));
+	_nonValueTokens.insert(std::make_pair("Double", eType::ConstructorDouble));
+	_nonValueTokens.insert(std::make_pair("(", eType::OBrace));
+	_nonValueTokens.insert(std::make_pair(")", eType::CBrace));
+	_nonValueTokens.insert(std::make_pair(";", eType::CommentBegin));
+	_nonValueTokens.insert(std::make_pair(" ", eType::WS));
+	_nonValueTokens.insert(std::make_pair("\t", eType::WS));
 }

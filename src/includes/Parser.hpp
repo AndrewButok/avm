@@ -6,33 +6,42 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:15 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/28 19:44:33 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/30 15:57:11 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AVM_PARSER_HPP
 #define AVM_PARSER_HPP
 
+#include <set>
 #include "OperandFactory.hpp"
 #include "Executor.hpp"
+#include "Lexer.hpp"
 
 class Parser {
 private:
-	static Parser *instance;
+	typedef Token::eTokenType eTokenType;
+	typedef OperandFactory::eOperandType eOperandType;
+	static Parser *_instance;
+
 
 	OperandFactory	*_operandFactory;
 	Executor		*_executor;
+	std::set<eTokenType> _operators;
+	std::set<eTokenType> _constructors;
 
 	Parser();
 	Parser(const Parser&) = default;
 	Parser &operator=(const Parser&) = default;
-	static void _checkTokens(std::vector<Token *>&);
+	void _checkTokens(std::vector<Token *>&);
 	static void _deleteTokens(std::vector<Token *> *);
+	const IOperand *makeOperand(Token* constructorToken, Token* rawValueToken);
+	eTokenType _execute(std::vector<Token *> &);
 public:
 	virtual ~Parser();
-	Parser *getInstance();
+	static Parser *getInstance();
 
-	void parse(const std::string &);
+	eTokenType parse(const std::string &);
 };
 
 

@@ -1,0 +1,6 @@
+push Int16(23)
+push Float(2)
+dump
+add
+dump
+exit

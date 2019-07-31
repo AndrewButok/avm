@@ -218,7 +218,7 @@ void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {
 	if (lo.getType() == IOperand::eOperandType::UnknownOperand ||
 		ro.getType() == IOperand::eOperandType::UnknownOperand ||
 		lo.getType() != ro.getType())
-		throw std::runtime_error("Wrong operand type");
+		throw std::runtime_error("Wrong operand eType");
 }
 
 typedef Operand<char> Int8;

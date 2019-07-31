@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 15:38:58 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/30 19:23:38 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ void Executor::mod() {
 void Executor::print() {
 	const IOperand *last = *(this->_stack->rbegin());
 	if (last->getType() != IOperand::eOperandType::Int8)
-		throw std::runtime_error("Wrong operand type to print");
+		throw std::runtime_error("Wrong operand eType to print");
 	const std::string *val = &(last->toString());
 	int ch = boost::lexical_cast<int>(*val);
 	delete val;

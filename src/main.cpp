@@ -6,35 +6,47 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 13:58:33 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/28 18:42:22 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 07:50:57 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <Parser.hpp>
 #include <iostream>
-#include <cmath>
-#include <vector>
-#include <sstream>
-#include <Token.hpp>
-#include <Lexer.hpp>
-#include "Executor.hpp"
+#include <fstream>
 
-int main() {
-//	OperandFactory *of = OperandFactory::getInstance();
-//	const IOperand *f1 = of->createOperand(IOperand::eOperandType::Int8, "45"),
-//			*f2 = of->createOperand(IOperand::eOperandType::Int8, "25");
-//	Executor *executor = Executor::getInstance();
-//	executor->pushToStack(f1);
-//	executor->pushToStack(f2);
-//	executor->popFromStack();
-//	executor->pushToStack(f1);
-//	executor->add();
-//	executor->dumpStack();
-//	executor->print();
-//	system("leaks Abstract-VM");
-	std::vector<Token *> *tokens = Lexer::tokenize("                       push    Int32          (456    ..234.2.34.2234234234)");
-	for (auto *token_ptr: *tokens)
-		delete (token_ptr);
-	delete tokens;
-	system("leaks Abstract-VM");
+void parse_file(std::istream& stream, const std::string& stream_name, Parser& parser) {
+	std::string row;
+	int row_no = 1;
+	Token::eTokenType completed_instruction = Token::eTokenType::RawValue;
+	while (getline(stream, row).good()) {
+		try {
+			if (row.empty()) {
+				row_no++;
+				continue;
+			}
+			completed_instruction = parser.parse(row);
+			if (completed_instruction == Token::eTokenType::Exit)
+				break;
+			if (stream.eof())
+				throw std::runtime_error("No Exit instruction in file.");
+		} catch (std::runtime_error &ex) {
+			std::cerr << "Runtime error of \"" << stream_name << "\" at " << row_no << " line: " << ex.what() << std::endl;
+		}
+		row_no++;
+	}
+	if (completed_instruction != Token::eTokenType::Exit)
+		std::cerr << "Runtime error of \"" << stream_name << "\" at " << row_no
+			<< " line: No exit instruction at the end fo the file" << std::endl;
+}
+
+int main(int argc, char** argv) {
+	Parser *parser = Parser::getInstance();
+	if (argc == 1)
+		parse_file(std::cin, "standart input", *parser);
+	else
+		for (int i = 1; i < argc; i++){
+			std::ifstream stream = std::ifstream(argv[i]);
+			parse_file(stream, argv[i], *parser);
+		}
 	return 0;
 }

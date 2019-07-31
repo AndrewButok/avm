@@ -17,12 +17,12 @@ COMPILER = clang++ -Wall -Werror -Wextra -std=c++11
 # Includes
 INCLUDEDIR = ./src/includes/
 INCLUDEFILES  = IOperand.hpp Operand.hpp OperandFactory.hpp Executor.hpp \
-				Token.hpp Lexer.hpp
+				Token.hpp Lexer.hpp Parser.hpp
 INCLUDE = $(addprefix $(INCLUDEDIR), $(INCLUDEFILES))
 BOOSTINCLUDE = /Users/abutok/.brew/opt/boost/include
 # Sources
 SRCDIR = ./src/
-SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp main.cpp
+SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp Parser.cpp main.cpp
 # Binaries
 BINDIR = ./out/
 BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))
