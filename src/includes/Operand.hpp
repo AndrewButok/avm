@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/28 19:24:43 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 15:10:39 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ public:
 	int					getPrecision() const override;
 	eOperandType 		getType() const override;
 
-	const IOperand		*operator+(const IOperand &) const override;
-	const IOperand		*operator-(const IOperand &) const override;
-	const IOperand		*operator/(const IOperand &) const override;
-	const IOperand		*operator*(const IOperand &) const override;
-	const IOperand		*operator%(const IOperand &) const override;
+	const IOperand		*operator+(const IOperand &) const override ;
+	const IOperand		*operator-(const IOperand &) const override ;
+	const IOperand		*operator/(const IOperand &) const override ;
+	const IOperand		*operator*(const IOperand &) const override ;
+	const IOperand		*operator%(const IOperand &) const override ;
 
 	const std::string	&toString() const override;
 };
@@ -218,7 +218,7 @@ void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {
 	if (lo.getType() == IOperand::eOperandType::UnknownOperand ||
 		ro.getType() == IOperand::eOperandType::UnknownOperand ||
 		lo.getType() != ro.getType())
-		throw std::runtime_error("Wrong operand eType");
+		throw AVMRuntimeError("Wrong operand eType");
 }
 
 typedef Operand<char> Int8;

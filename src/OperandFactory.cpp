@@ -6,12 +6,13 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 15:01:43 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 15:09:12 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <vector>
 #include <boost/lexical_cast.hpp>
+#include "AVMRuntimeError.hpp"
 #include "OperandFactory.hpp"
 #include "Operand.hpp"
 
@@ -42,7 +43,7 @@ const IOperand *OperandFactory::createInt8(const std::string &value) const {
 			throw boost::bad_lexical_cast();
 		return new Int8(static_cast<char>(val));
 	} catch (boost::bad_lexical_cast &ex){
-		throw std::invalid_argument("Int8 bad value");
+		throw AVMRuntimeError("Int8 bad value");
 	}
 }
 
@@ -51,7 +52,7 @@ const IOperand *OperandFactory::createInt16(const std::string &value) const {
 		auto val = boost::lexical_cast<short>(value);
 		return new Int16(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw std::invalid_argument("Int16 bad value");
+		throw AVMRuntimeError("Int16 bad value");
 	}
 }
 
@@ -60,7 +61,7 @@ const IOperand *OperandFactory::createInt32(const std::string &value) const {
 		auto val = boost::lexical_cast<int>(value);
 		return new Int32(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw std::invalid_argument("Int32 bad value");
+		throw AVMRuntimeError("Int32 bad value");
 	}
 }
 
@@ -69,7 +70,7 @@ const IOperand *OperandFactory::createFloat(const std::string &value) const {
 		auto val = boost::lexical_cast<float>(value);
 		return new Float(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw std::invalid_argument("Float bad value");
+		throw AVMRuntimeError("Float bad value");
 	}
 }
 
@@ -78,14 +79,14 @@ const IOperand *OperandFactory::createDouble(const std::string &value) const {
 		auto val = boost::lexical_cast<double>(value);
 		return new Double(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw std::invalid_argument("Double bad value");
+		throw AVMRuntimeError("Double bad value");
 	}
 }
 
 const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
 											  const std::string &value) {
 	if (type == eOperandType::UnknownOperand)
-		throw std::invalid_argument("Factory method have token invalid operand eType");
+		throw AVMRuntimeError("Factory method have token invalid operand eType");
 	CreateTypeFunc ctf = (*this->_functions)[static_cast<unsigned int>(type)];
 	return (this->*ctf)(value);
 }
@@ -99,7 +100,7 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 		return nullptr;
 	if (operand->getType() == IOperand::eOperandType::UnknownOperand ||
 		operand->getType() >= type)
-		throw std::runtime_error("Operand eType is greater than eType sent to function");
+		throw AVMRuntimeError("Operand eType is greater than eType sent to function");
 	const IOperand *result = nullptr;
 	const std::string *strOperandVal = &(operand->toString());
 	try {
@@ -117,10 +118,10 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 				result = this->createOperand(IOperand::eOperandType ::Float, *strOperandVal);
 				break;
 			case IOperand::eOperandType::Double:
-				result = this->createOperand(IOperand::eOperandType ::Float, *strOperandVal);
+				result = this->createOperand(IOperand::eOperandType ::Double, *strOperandVal);
 				break;
 			default:
-				throw std::runtime_error("Unknown copy error");
+				throw AVMRuntimeError("Unknown copy error");
 		}
 		delete strOperandVal;
 		return result;

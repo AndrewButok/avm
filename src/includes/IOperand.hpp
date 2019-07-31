@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/18 23:29:14 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/19 02:36:28 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 11:06:43 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,12 @@ public:
 	virtual 					~IOperand() = default;
 
 	enum class eOperandType: unsigned int{
+        UnknownOperand = 0,
 		Int8 = 1,
 		Int16 = 2,
 		Int32 = 3,
 		Float = 4,
-		Double = 5,
-		UnknownOperand = 0
+		Double = 5
 	};
 };
 

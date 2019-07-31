@@ -63,6 +63,8 @@ Token *Lexer::_getValueToken(const std::string &row, size_t &pos) {
 }
 
 void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
+    if (vector.empty())
+        return;
 	while (vector[vector.size() - 1]->getType() == eType::WS) {
 		delete vector[vector.size() - 1];
 		vector.pop_back();

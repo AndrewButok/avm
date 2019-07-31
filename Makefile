@@ -6,7 +6,7 @@
 #    By: abutok <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/23 18:03:27 by abutok            #+#    #+#              #
-#    Updated: 2019/07/28 18:05:28 by abutok           ###   ########.fr        #
+#    Updated: 2019/07/31 15:12:58 by abutok           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,12 +17,12 @@ COMPILER = clang++ -Wall -Werror -Wextra -std=c++11
 # Includes
 INCLUDEDIR = ./src/includes/
 INCLUDEFILES  = IOperand.hpp Operand.hpp OperandFactory.hpp Executor.hpp \
-				Token.hpp Lexer.hpp Parser.hpp
+				Token.hpp Lexer.hpp Parser.hpp AVMRuntimeError.hpp
 INCLUDE = $(addprefix $(INCLUDEDIR), $(INCLUDEFILES))
 BOOSTINCLUDE = /Users/abutok/.brew/opt/boost/include
 # Sources
 SRCDIR = ./src/
-SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp Parser.cpp main.cpp
+SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp Parser.cpp AVMRuntimeError.cpp main.cpp
 # Binaries
 BINDIR = ./out/
 BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))

@@ -1,6 +1,12 @@
-push Int16(23)
-push Float(2)
+push Int32(42)
+push Int32(33)
+add ;poney
+push Float(44.55)
+mul
+push Double(42.42)
+;dddd
+push Int32(42)
 dump
-add
-dump
+pop
+assert Double(42.42)
 exit

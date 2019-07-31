@@ -6,10 +6,11 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:26 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/30 23:42:10 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 16:03:15 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "AVMRuntimeError.hpp"
 #include "Parser.hpp"
 
 Parser* Parser::_instance = nullptr;
@@ -36,7 +37,6 @@ Parser::Parser() {
 }
 
 Parser::~Parser() {
-	delete _operandFactory;
 	delete _executor;
 }
 
@@ -54,47 +54,61 @@ Parser::eTokenType Parser::parse(const std::string &row) {
 		auto rv = _execute(tokens_ref);
 		_deleteTokens(tokens);
 		return rv;
-	} catch (std::runtime_error &ex) {
+	} catch (AVMRuntimeError &ex) {
 		_deleteTokens(tokens);
 		throw ex;
 	}
 }
 
 void Parser::_checkTokens(std::vector<Token *> &tokens) {
-	if (_operators.find(tokens[0]->getType()) == _operators.end())
-		throw std::runtime_error("Invalid operator");
-	if (((tokens[0]->getType() != eTokenType::Assert &&
-		  tokens[0]->getType() != eTokenType::Push) &&
-		 tokens.size() == 1))
+    if (tokens.empty())
+        return;
+    auto iter = tokens.begin();
+    auto end = tokens.end();
+	if (_operators.find((*iter)->getType()) == _operators.end())
+		throw AVMRuntimeError("Invalid operator");
+	if ((((*iter)->getType() != eTokenType::Assert &&
+            (*iter)->getType() != eTokenType::Push) &&
+            (iter + 1) == end))
 		return ;
-	if (((tokens[0]->getType() == eTokenType::Assert ||
-		tokens[0]->getType() == eTokenType::Push) &&
-		tokens.size() == 1)||
-		((tokens[0]->getType() != eTokenType::Assert &&
-		 tokens[0]->getType() != eTokenType::Push) &&
-		tokens.size() > 1))
-		throw std::runtime_error("Invalid number of arguments");
-	if (tokens[1]->getType() != eTokenType::WS)
-		throw std::runtime_error("Invalid operator");
-	if (tokens.size() > 2 &&
-		_constructors.find(tokens[2]->getType()) == _constructors.end())
-		throw std::runtime_error("Invalid operator argument");
-	if (tokens.size() > 3 &&
-		tokens[3]->getType() != eTokenType::OBrace)
-		throw std::runtime_error("Missing constructor opening bracket");
-	if (tokens.size() > 4 &&
-		tokens[4]->getType() != eTokenType::RawValue)
-		throw std::runtime_error("Missing constructor value");
-	if (tokens.size() > 5 &&
-		tokens[5]->getType() != eTokenType::CBrace)
-		throw std::runtime_error("Missing constructor closing bracket");
-	if (tokens.size() > 6 && tokens[6]->getType() == eTokenType::WS)
-		throw std::runtime_error("Too many arguments");
-	if (tokens.size() > 6 && tokens[6]->getType() != eTokenType::WS)
-		throw std::runtime_error("Invalid argument");
+	if ((((*iter)->getType() == eTokenType::Assert ||
+            (*iter)->getType() == eTokenType::Push) &&
+            (iter + 1) == end)||
+		((*iter)->getType() != eTokenType::Assert &&
+		 tokens[0]->getType() != eTokenType::Push &&
+                ((iter + 1) != end)))
+		throw AVMRuntimeError("Invalid number of arguments");
+	iter++;
+	if ((*iter)->getType() != eTokenType::WS)
+		throw AVMRuntimeError("Invalid operator");
+	iter++;
+	if (iter == end)
+	    throw AVMRuntimeError("No operator argument");
+	if (_constructors.find((*iter)->getType()) == _constructors.end())
+		throw AVMRuntimeError("Invalid operator argument");
+	iter++;
+	if (iter == end ||
+        (*iter)->getType() != eTokenType::OBrace)
+		throw AVMRuntimeError("Missing constructor opening bracket");
+	iter++;
+	if (iter == end ||
+        (*iter)->getType() != eTokenType::RawValue)
+		throw AVMRuntimeError("Missing constructor value");
+	iter++;
+	if (iter == end ||
+        (*iter)->getType() != eTokenType::CBrace)
+		throw AVMRuntimeError("Missing constructor closing bracket");
+	iter++;
+	if (iter != end &&
+        (*iter)->getType() == eTokenType::WS)
+		throw AVMRuntimeError("Too many arguments");
+	if (iter != end)
+		throw AVMRuntimeError("Invalid argument");
 }
 
 Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
+    if (tokens.empty())
+        return  eTokenType::RawValue;
 	const IOperand *operand = nullptr;
 	switch (tokens[0]->getType()){
 		case eTokenType::Push:{
@@ -104,7 +118,7 @@ Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
 		}
 		case eTokenType::Assert:{
 			operand = makeOperand(tokens[2], tokens[4]);
-			_executor->pushToStack(operand);
+			_executor->assertFromStack(operand);
 			break;
 		}
 		case eTokenType::Pop:
@@ -134,7 +148,7 @@ Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
 		case eTokenType::Exit:
 			break;
 		default:
-			throw std::runtime_error("Impossible. How you pass non operator token?");
+			throw AVMRuntimeError("Impossible. How you pass non operator token?");
 	}
 	return tokens[0]->getType();
 }
@@ -160,5 +174,5 @@ Parser::makeOperand(Token *constructorToken, Token *rawValueToken) {
 	if (constructorToken->getType() == eTokenType::ConstructorFloat)
 		return _operandFactory->createOperand(eOperandType::Float, rawValueToken->getValue());
 	else
-		throw std::runtime_error("Illegal constructor");
+		throw AVMRuntimeError("Illegal constructor");
 }
