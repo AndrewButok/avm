@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 18:51:02 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 12:41:11 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/01 13:43:34 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ private:
 public:
 	virtual ~Executor();
 	static Executor *getInstance();
+	void cleanStack();
 
 	void pushToStack(const IOperand *operand);
 	void popFromStack();
@@ -54,6 +55,9 @@ public:
 	void div();
 	void mod();
 	void print();
+	void max();
+	void min();
+	void pow();
 };
 
 

@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/31 15:09:12 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/01 12:50:16 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ const IOperand *OperandFactory::createInt8(const std::string &value) const {
 			throw boost::bad_lexical_cast();
 		return new Int8(static_cast<char>(val));
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Int8 bad value");
+		throw AVMRuntimeError("Value could not be interpreted as Int8");
 	}
 }
 
@@ -52,7 +52,7 @@ const IOperand *OperandFactory::createInt16(const std::string &value) const {
 		auto val = boost::lexical_cast<short>(value);
 		return new Int16(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Int16 bad value");
+		throw AVMRuntimeError("Value could not be interpreted as Int16");
 	}
 }
 
@@ -61,7 +61,7 @@ const IOperand *OperandFactory::createInt32(const std::string &value) const {
 		auto val = boost::lexical_cast<int>(value);
 		return new Int32(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Int32 bad value");
+		throw AVMRuntimeError("Value could not be interpreted as Int32");
 	}
 }
 
@@ -70,7 +70,7 @@ const IOperand *OperandFactory::createFloat(const std::string &value) const {
 		auto val = boost::lexical_cast<float>(value);
 		return new Float(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Float bad value");
+		throw AVMRuntimeError("Value could not be interpreted as Float");
 	}
 }
 
@@ -79,7 +79,7 @@ const IOperand *OperandFactory::createDouble(const std::string &value) const {
 		auto val = boost::lexical_cast<double>(value);
 		return new Double(val);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Double bad value");
+		throw AVMRuntimeError("Value could not be interpreted as Double");
 	}
 }
 
@@ -125,7 +125,7 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 		}
 		delete strOperandVal;
 		return result;
-	} catch (std::exception &ex){
+	} catch (AVMRuntimeError &ex){
 		delete strOperandVal;
 		throw ex;
 	}

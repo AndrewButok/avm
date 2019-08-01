@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/31 18:05:58 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/01 16:06:12 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,11 @@ Executor::~Executor() {
 
 void Executor::_checkStack(unsigned int needed) const {
 	if (this->_stack->empty())
-		throw std::out_of_range("Stack is empty");
+		throw AVMRuntimeError("Stack is empty");
 	if (this->_stack->size() < needed) {
 		std::stringstream ss;
-		ss << "Stack have only one element";
-		throw std::out_of_range(ss.str());
+		ss << "Stack have only " << this->_stack->size() << " element(s)";
+		throw AVMRuntimeError(ss.str());
 	}
 }
 
@@ -60,35 +60,43 @@ void Executor::pushToStack(const IOperand *operand) {
 }
 
 void Executor::popFromStack() {
-	if (this->_stack->empty())
-		throw AVMRuntimeError("Pop error: Stack is empty");
-	delete *(this->_stack->end() - 1);
-	this->_stack->pop_back();
+	try {
+		this->_checkStack(1);
+		delete *(this->_stack->end() - 1);
+		this->_stack->pop_back();
+	} catch (AVMRuntimeError &ex) {
+		throw AVMRuntimeError(std::string("Pop error: ") + ex.what());
+	}
 }
 
 void Executor::assertFromStack(const IOperand *operand) {
-	if (operand != nullptr){
-		const IOperand *last = *(this->_stack->rbegin());
-        const std::string *s1 = &(last->toString());
-        const std::string *s2 = &(operand->toString());
-		try {
-            if (last->getType() != operand->getType() &&
-                *s1 == *s2)
-                throw std::invalid_argument("Assert error: Different operand types");
-            if (last->getType() != operand->getType() &&
-                *s1 != *s2)
-                throw std::invalid_argument("Assert error: Different operand types and values");
-            if (*s1 != *s2)
-                throw std::invalid_argument("Assert error: Different operand values");
-            delete s1;
-            delete s2;
-            delete operand;
-        } catch (std::invalid_argument &ex) {
-            delete s1;
-            delete s2;
-		    delete operand;
-		    throw AVMRuntimeError(ex.what());
+	try {
+		this->_checkStack(1);
+		if (operand != nullptr) {
+			const IOperand *last = *(this->_stack->rbegin());
+			const std::string *s1 = &(last->toString());
+			const std::string *s2 = &(operand->toString());
+			try {
+				if (last->getType() != operand->getType() &&
+					*s1 == *s2)
+					throw AVMRuntimeError("Different operand types");
+				if (last->getType() != operand->getType() &&
+					*s1 != *s2)
+					throw AVMRuntimeError("Different operand types and values");
+				if (*s1 != *s2)
+					throw AVMRuntimeError("Different operand values");
+				delete s1;
+				delete s2;
+				delete operand;
+			} catch (AVMRuntimeError &ex) {
+				delete s1;
+				delete s2;
+				delete operand;
+				throw AVMRuntimeError(ex.what());
+			}
 		}
+	} catch (AVMRuntimeError &ex) {
+		throw AVMRuntimeError(std::string("Assert error:") + ex.what());
 	}
 }
 
@@ -102,30 +110,29 @@ void Executor::dumpStack() {
 }
 
 void Executor::_executeArithmeticOperator(eOperatorType type) {
-
 		this->_checkStack(2);
 		auto iter = this->_stack->rbegin();
 		const IOperand *result = nullptr;
-        const IOperand *buf = nullptr;
+		const IOperand *buf = nullptr;
 		if ((*(iter + 1))->getType() != (*iter)->getType())
 		{
 			if ((*(iter + 1))->getType() > (*iter)->getType()) {
 				buf = this->_operandFactory->createOperand(
-                        (*(iter + 1))->getType(), (*iter));
+						(*(iter + 1))->getType(), (*iter));
 				delete *iter;
-                *iter = buf;
+				*iter = buf;
 			}
 			else {
 				buf = this->_operandFactory->createOperand(
-                        (*iter)->getType(), *(iter + 1));
+						(*iter)->getType(), *(iter + 1));
 				delete *(iter + 1);
-                *(iter + 1) = buf;
+				*(iter + 1) = buf;
 			}
 		}
 		Operator oper = (*this->_operators)[static_cast<unsigned int>(type)];
 		result = ((*(iter + 1))->*oper)(**iter);
 		delete *(iter + 1);
-        delete *(iter);
+		delete *(iter);
 		this->_stack->pop_back();
 		this->_stack->pop_back();
 		this->_stack->push_back(result);
@@ -173,11 +180,75 @@ void Executor::mod() {
 }
 
 void Executor::print() {
-	const IOperand *last = *(this->_stack->rbegin());
-	if (last->getType() != IOperand::eOperandType::Int8)
-		throw AVMRuntimeError("Wrong operand eType to print");
-	const std::string *val = &(last->toString());
-	int ch = boost::lexical_cast<int>(*val);
-	delete val;
-	std::cout << static_cast<char>(ch);
+	try {
+		this->_checkStack(1);
+		const IOperand *last = *(this->_stack->rbegin());
+		if (last->getType() != IOperand::eOperandType::Int8)
+			throw AVMRuntimeError("Wrong operand eType to print");
+		const std::string *val = &(last->toString());
+		int ch = boost::lexical_cast<int>(*val);
+		delete val;
+		std::cout << static_cast<char>(ch);
+	} catch(AVMRuntimeError &ex) {
+		throw AVMRuntimeError("Print error: " + std::string(ex.what()));
+	}
+}
+
+void Executor::max() {
+	try {
+		this->_checkStack(1);
+		const IOperand *max = nullptr;
+		for (auto op: *(this->_stack))
+			if (max == nullptr || *max < *op)
+				max = op;
+		const std::string *maxv = &(max->toString());
+		std::cout << *maxv << std::endl;
+		delete maxv;
+	} catch (AVMRuntimeError &ex) {
+		throw AVMRuntimeError("Maximum error: " + std::string(ex.what()));
+	}
+}
+
+void Executor::min() {
+	try {
+		this->_checkStack(1);
+		const IOperand *min = nullptr;
+		for (auto op: *(this->_stack))
+			if (min == nullptr || *min > *op)
+				min = op;
+		const std::string *minv = &(min->toString());
+		std::cout << *minv << std::endl;
+		delete minv;
+	} catch (AVMRuntimeError &ex) {
+		throw AVMRuntimeError("Minimum error: " + std::string(ex.what()));
+	}
+}
+
+void Executor::pow() {
+	try {
+		this->_checkStack(2);
+		auto iter = this->_stack->rbegin();
+		const std::string *rOperand = &(*iter++)->toString(),
+				*lOperand = &(*iter)->toString();
+		delete *(iter - 1);
+		delete *iter;
+		this->_stack->pop_back();
+		this->_stack->pop_back();
+		std::stringstream ss;
+		ss << std::pow(boost::lexical_cast<double>(*lOperand),
+					   boost::lexical_cast<double>(*rOperand));
+		auto result = this->_operandFactory->createOperand(
+				IOperand::eOperandType::Double, ss.str());
+		this->_stack->push_back(result);
+		delete lOperand;
+		delete rOperand;
+	} catch (AVMRuntimeError &ex) {
+		throw AVMRuntimeError("Power error: " + std::string(ex.what()));
+	}
+}
+
+void Executor::cleanStack() {
+	for (auto ptr: *this->_stack)
+		delete ptr;
+	this->_stack->clear();
 }

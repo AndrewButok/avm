@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/26 23:36:42 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/30 23:35:54 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/01 15:32:40 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,13 @@ Token *Lexer::_getValueToken(const std::string &row, size_t &pos) {
 }
 
 void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
-    if (vector.empty())
-        return;
-	while (vector[vector.size() - 1]->getType() == eType::WS) {
+	if (vector.empty())
+		return;
+	while (!vector.empty() && vector[vector.size() - 1]->getType() == eType::WS) {
 		delete vector[vector.size() - 1];
 		vector.pop_back();
 	}
-	while ((*vector.begin())->getType() == eType::WS) {
+	while (!vector.empty() && (*vector.begin())->getType() == eType::WS) {
 		delete *vector.begin();
 		vector.erase(vector.begin());
 	}
@@ -128,6 +128,9 @@ void Lexer::_initializeNVT() {
 	_nonValueTokens.insert(std::make_pair("(", eType::OBrace));
 	_nonValueTokens.insert(std::make_pair(")", eType::CBrace));
 	_nonValueTokens.insert(std::make_pair(";", eType::CommentBegin));
+	_nonValueTokens.insert(std::make_pair("min", eType::Min));
+	_nonValueTokens.insert(std::make_pair("max", eType::Max));
+	_nonValueTokens.insert(std::make_pair("pow", eType::Pow));
 	_nonValueTokens.insert(std::make_pair(" ", eType::WS));
 	_nonValueTokens.insert(std::make_pair("\t", eType::WS));
 }

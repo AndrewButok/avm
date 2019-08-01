@@ -18,17 +18,17 @@
 
 class AVMRuntimeError: public::std::exception {
 private:
-    const std::string _message;
+	const std::string _message;
 
-    AVMRuntimeError &operator=(const AVMRuntimeError&);
+	AVMRuntimeError &operator=(const AVMRuntimeError&);
 public:
-    AVMRuntimeError();
-    explicit AVMRuntimeError(std::string message);
-    AVMRuntimeError(const AVMRuntimeError&) noexcept;
+	AVMRuntimeError();
+	explicit AVMRuntimeError(std::string message);
+	AVMRuntimeError(const AVMRuntimeError&) noexcept;
 
-    ~AVMRuntimeError() override;
+	~AVMRuntimeError() override;
 
-    const char *what() const noexcept override;
+	const char *what() const noexcept override;
 };
 
 

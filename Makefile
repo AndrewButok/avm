@@ -6,7 +6,7 @@
 #    By: abutok <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/23 18:03:27 by abutok            #+#    #+#              #
-#    Updated: 2019/07/31 15:12:58 by abutok           ###   ########.fr        #
+#    Updated: 2019/08/01 12:05:59 by abutok           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ INCLUDE = $(addprefix $(INCLUDEDIR), $(INCLUDEFILES))
 BOOSTINCLUDE = /Users/abutok/.brew/opt/boost/include
 # Sources
 SRCDIR = ./src/
-SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp Parser.cpp AVMRuntimeError.cpp main.cpp
+SRC = OperandFactory.cpp Executor.cpp Token.cpp Lexer.cpp Parser.cpp \
+				AVMRuntimeError.cpp main.cpp
 # Binaries
 BINDIR = ./out/
 BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))
@@ -32,7 +33,7 @@ BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))
 all: $(NAME)
 
 $(NAME): $(BINDIR) $(BIN)
-	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN)
+	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN) -L /Users/abutok/.brew/opt/boost/lib -lboost_filesystem
 
 $(BINDIR):
 	@if [ ! -d "$(BINDIR)" ]; then mkdir $(BINDIR); fi

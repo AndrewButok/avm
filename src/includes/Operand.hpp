@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/31 15:10:39 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/01 13:19:28 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ public:
 	const IOperand		*operator/(const IOperand &) const override ;
 	const IOperand		*operator*(const IOperand &) const override ;
 	const IOperand		*operator%(const IOperand &) const override ;
+	bool				operator>(const IOperand &operand) const override;
+	bool				operator<(const IOperand &operand) const override;
 
 	const std::string	&toString() const override;
 };
@@ -113,10 +115,10 @@ const IOperand *Operand<Base>::operator+(const IOperand &right_operand) const {
 	if (this->getType() < IOperand::eOperandType::Float) {
 		if (casted_ro._val > 0 &&
 			this->_val > std::numeric_limits<Base>::max() - casted_ro._val)
-			throw std::overflow_error("Operand overflow");
+			throw AVMRuntimeError("Operand overflow");
 		if (casted_ro._val < 0 &&
 			this->_val < std::numeric_limits<Base>::min() - casted_ro._val)
-			throw std::underflow_error("Operand underflow");
+			throw AVMRuntimeError("Operand underflow");
 	}
 	return  new Operand<Base>(this->_val + casted_ro._val);
 }
@@ -128,10 +130,10 @@ const IOperand *Operand<Base>::operator-(const IOperand &right_operand) const {
 	if (this->getType() < IOperand::eOperandType::Float) {
 		if (casted_ro._val > 0 &&
 			this->_val < std::numeric_limits<Base>::min() + casted_ro._val)
-			throw std::overflow_error("Operand underflow");
+			throw AVMRuntimeError("Operand underflow");
 		if (casted_ro._val < 0 &&
 			this->_val > std::numeric_limits<Base>::max() + casted_ro._val)
-			throw std::underflow_error("Operand overflow");
+			throw AVMRuntimeError("Operand overflow");
 	}
 	return  new Operand<Base>(this->_val - casted_ro._val);
 }
@@ -141,7 +143,7 @@ const IOperand *Operand<Base>::operator/(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
-		throw std::invalid_argument("Division by a zero");
+		throw AVMRuntimeError("Division by a zero");
 	auto result = new Operand<Base>(this->_val / casted_ro._val);
 	return result;
 }
@@ -156,13 +158,13 @@ const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
 			|| (casted_ro._val < 0 && this->_val < 0
 				&&
 				this->_val < std::numeric_limits<Base>::max() / casted_ro._val))
-			throw std::overflow_error("Operand overflow");
+			throw AVMRuntimeError("Operand overflow");
 		if ((casted_ro._val > 0 && this->_val < 0
 			 && this->_val > std::numeric_limits<Base>::min() / casted_ro._val)
 			|| (casted_ro._val < 0 && this->_val > 0
 				&&
 				this->_val < std::numeric_limits<Base>::min() / casted_ro._val))
-			throw std::overflow_error("Operand underflow");
+			throw AVMRuntimeError("Operand underflow");
 	}
 	auto result = new Operand<Base>(this->_val * casted_ro._val);
 	return result;
@@ -173,7 +175,7 @@ const IOperand *Operand<Base>::operator%(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
-		throw std::invalid_argument("Division by a zero");
+		throw AVMRuntimeError("Division by a zero");
 	auto result = new Operand<Base>(this->_val % casted_ro._val);
 	return result;
 }
@@ -183,7 +185,7 @@ const IOperand *Operand<float>::operator%(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
 	if (casted_ro._val == 0)
-		throw std::invalid_argument("Division by a zero");
+		throw AVMRuntimeError("Division by a zero");
 	auto result = new Operand<float>(fmod(this->_val, casted_ro._val));
 	return result;
 }
@@ -193,7 +195,7 @@ const IOperand *Operand<double>::operator%(const IOperand &right_operand) const 
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
 	if (casted_ro._val == 0)
-		throw std::invalid_argument("Division by a zero");
+		throw AVMRuntimeError("Division by a zero");
 	auto result = new Operand<double>(fmod(this->_val, casted_ro._val));
 	return result;
 }
@@ -219,6 +221,28 @@ void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {
 		ro.getType() == IOperand::eOperandType::UnknownOperand ||
 		lo.getType() != ro.getType())
 		throw AVMRuntimeError("Wrong operand eType");
+}
+
+template<typename Base>
+bool Operand<Base>::operator<(const IOperand &operand) const {
+	const std::string *thisStr = &(this->toString());
+	const std::string *operandStr = &(operand.toString());
+	auto a = boost::lexical_cast<double>(*thisStr),
+			b = boost::lexical_cast<double>(*operandStr);
+	delete thisStr;
+	delete operandStr;
+	return  a < b;
+}
+
+template<typename Base>
+bool Operand<Base>::operator>(const IOperand &operand) const {
+	const std::string *thisStr = &(this->toString());
+	const std::string *operandStr = &(operand.toString());
+	auto a = boost::lexical_cast<double>(*thisStr),
+			b = boost::lexical_cast<double>(*operandStr);
+	delete thisStr;
+	delete operandStr;
+	return a > b;
 }
 
 typedef Operand<char> Int8;

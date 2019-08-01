@@ -42,6 +42,7 @@ public:
 	static Parser *getInstance();
 
 	eTokenType parse(const std::string &);
+	void cleanExecutor();
 };
 
 

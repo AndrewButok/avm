@@ -24,11 +24,11 @@ AVMRuntimeError::AVMRuntimeError(const AVMRuntimeError &ex) noexcept: _message(e
 }
 
 AVMRuntimeError &AVMRuntimeError::operator=(const AVMRuntimeError &) {
-    return *this;
+	return *this;
 }
 
 AVMRuntimeError::~AVMRuntimeError() = default;
 
 const char *AVMRuntimeError::what() const noexcept{
-    return this->_message.c_str();
+	return this->_message.c_str();
 }

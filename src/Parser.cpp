@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:26 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/31 16:03:15 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/01 15:32:40 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,9 @@ Parser::Parser() {
 	_operators.insert(eTokenType::Mod);
 	_operators.insert(eTokenType::Print);
 	_operators.insert(eTokenType::Exit);
+	_operators.insert(eTokenType::Min);
+	_operators.insert(eTokenType::Max);
+	_operators.insert(eTokenType::Pow);
 	_constructors.insert(eTokenType::ConstructorInt8);
 	_constructors.insert(eTokenType::ConstructorInt16);
 	_constructors.insert(eTokenType::ConstructorInt32);
@@ -71,6 +74,8 @@ void Parser::_checkTokens(std::vector<Token *> &tokens) {
             (*iter)->getType() != eTokenType::Push) &&
             (iter + 1) == end))
 		return ;
+	if ((iter + 1) != end && (*(iter + 1))->getType() != eTokenType::WS)
+		throw AVMRuntimeError("Invalid operator");
 	if ((((*iter)->getType() == eTokenType::Assert ||
             (*iter)->getType() == eTokenType::Push) &&
             (iter + 1) == end)||
@@ -145,6 +150,15 @@ Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
 		case eTokenType::Print:
 			_executor->print();
 			break;
+		case eTokenType::Min:
+			_executor->min();
+			break;
+		case eTokenType::Max:
+			_executor->max();
+			break;
+		case eTokenType::Pow:
+			_executor->pow();
+			break;
 		case eTokenType::Exit:
 			break;
 		default:
@@ -175,4 +189,8 @@ Parser::makeOperand(Token *constructorToken, Token *rawValueToken) {
 		return _operandFactory->createOperand(eOperandType::Float, rawValueToken->getValue());
 	else
 		throw AVMRuntimeError("Illegal constructor");
+}
+
+void Parser::cleanExecutor() {
+	this->_executor->cleanStack();
 }
