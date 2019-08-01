@@ -1,12 +1,12 @@
-push Int32(42)
-push Int32(33)
+push int32(42)
+push int32(33)
 add ;poney
-push Float(44.55)
+push float(44.55)
 mul
-push Double(42.42)
+push double(42.42)
 ;dddd
-push Int32(42)
+push int32(42)
 dump
 pop
-assert Double(42.42)
+assert double(42.42)
 exit

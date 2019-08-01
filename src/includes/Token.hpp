@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 14:08:37 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/28 16:40:57 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 22:02:32 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ private:
 
 	Token();
 public:
-	explicit Token(std::string &value);
+	explicit Token(std::string value);
 	explicit Token(eTokenType type);
 	Token(const Token&) = default;
 	Token &operator=(const Token&) = default;

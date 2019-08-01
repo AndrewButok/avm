@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/31 15:09:12 by abutok           ###   ########.fr       */
+/*   Updated: 2019/07/31 18:05:58 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ void Executor::_checkStack(unsigned int needed) const {
 	if (this->_stack->empty())
 		throw std::out_of_range("Stack is empty");
 	if (this->_stack->size() < needed) {
-		std::stringstream ss("Stack have only ");
-		ss << this->_stack->size() << " element(s)";
+		std::stringstream ss;
+		ss << "Stack have only one element";
 		throw std::out_of_range(ss.str());
 	}
 }
@@ -61,7 +61,7 @@ void Executor::pushToStack(const IOperand *operand) {
 
 void Executor::popFromStack() {
 	if (this->_stack->empty())
-		throw std::out_of_range("Pop error: Stack is empty");
+		throw AVMRuntimeError("Pop error: Stack is empty");
 	delete *(this->_stack->end() - 1);
 	this->_stack->pop_back();
 }

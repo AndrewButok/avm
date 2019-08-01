@@ -120,11 +120,11 @@ void Lexer::_initializeNVT() {
 	_nonValueTokens.insert(std::make_pair("mod", eType::Mod));
 	_nonValueTokens.insert(std::make_pair("print", eType::Print));
 	_nonValueTokens.insert(std::make_pair("exit", eType::Exit));
-	_nonValueTokens.insert(std::make_pair("Int8", eType::ConstructorInt8));
-	_nonValueTokens.insert(std::make_pair("Int16", eType::ConstructorInt16));
-	_nonValueTokens.insert(std::make_pair("Int32", eType::ConstructorInt32));
-	_nonValueTokens.insert(std::make_pair("Float", eType::ConstructorFloat));
-	_nonValueTokens.insert(std::make_pair("Double", eType::ConstructorDouble));
+	_nonValueTokens.insert(std::make_pair("int8", eType::ConstructorInt8));
+	_nonValueTokens.insert(std::make_pair("int16", eType::ConstructorInt16));
+	_nonValueTokens.insert(std::make_pair("int32", eType::ConstructorInt32));
+	_nonValueTokens.insert(std::make_pair("float", eType::ConstructorFloat));
+	_nonValueTokens.insert(std::make_pair("double", eType::ConstructorDouble));
 	_nonValueTokens.insert(std::make_pair("(", eType::OBrace));
 	_nonValueTokens.insert(std::make_pair(")", eType::CBrace));
 	_nonValueTokens.insert(std::make_pair(";", eType::CommentBegin));
