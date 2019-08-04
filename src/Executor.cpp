@@ -6,12 +6,11 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 16:06:12 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 00:46:31 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include <sstream>
 #include <boost/lexical_cast.hpp>
 #include "AVMRuntimeError.hpp"
 #include "Executor.hpp"
@@ -130,7 +129,7 @@ void Executor::_executeArithmeticOperator(eOperatorType type) {
 			}
 		}
 		Operator oper = (*this->_operators)[static_cast<unsigned int>(type)];
-		result = ((*(iter + 1))->*oper)(**iter);
+		result = (((*(iter + 1))->*oper)(**iter));
 		delete *(iter + 1);
 		delete *(iter);
 		this->_stack->pop_back();

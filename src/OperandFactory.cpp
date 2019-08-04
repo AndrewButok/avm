@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 12:50:16 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/02 22:24:48 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,12 @@ OperandFactory::OperandFactory() {
 
 const IOperand *OperandFactory::createInt8(const std::string &value) const {
 	try {
-		int val = boost::lexical_cast<int>(value);
+		auto val = boost::lexical_cast<int>(value);
 		if (val > static_cast<int>(std::numeric_limits<char>::max()))
 			throw boost::bad_lexical_cast();
 		if (val < static_cast<int>(std::numeric_limits<char>::min()))
 			throw boost::bad_lexical_cast();
-		return new Int8(static_cast<char>(val));
+		return new Int8(static_cast<char>(val), 0);
 	} catch (boost::bad_lexical_cast &ex){
 		throw AVMRuntimeError("Value could not be interpreted as Int8");
 	}
@@ -50,7 +50,7 @@ const IOperand *OperandFactory::createInt8(const std::string &value) const {
 const IOperand *OperandFactory::createInt16(const std::string &value) const {
 	try {
 		auto val = boost::lexical_cast<short>(value);
-		return new Int16(val);
+		return new Int16(val, 0);
 	} catch (boost::bad_lexical_cast &ex){
 		throw AVMRuntimeError("Value could not be interpreted as Int16");
 	}
@@ -59,7 +59,7 @@ const IOperand *OperandFactory::createInt16(const std::string &value) const {
 const IOperand *OperandFactory::createInt32(const std::string &value) const {
 	try {
 		auto val = boost::lexical_cast<int>(value);
-		return new Int32(val);
+		return new Int32(val, 0);
 	} catch (boost::bad_lexical_cast &ex){
 		throw AVMRuntimeError("Value could not be interpreted as Int32");
 	}
@@ -68,7 +68,8 @@ const IOperand *OperandFactory::createInt32(const std::string &value) const {
 const IOperand *OperandFactory::createFloat(const std::string &value) const {
 	try {
 		auto val = boost::lexical_cast<float>(value);
-		return new Float(val);
+		auto precision = _getPrecision(value);
+		return new Float(val, precision);
 	} catch (boost::bad_lexical_cast &ex){
 		throw AVMRuntimeError("Value could not be interpreted as Float");
 	}
@@ -77,7 +78,8 @@ const IOperand *OperandFactory::createFloat(const std::string &value) const {
 const IOperand *OperandFactory::createDouble(const std::string &value) const {
 	try {
 		auto val = boost::lexical_cast<double>(value);
-		return new Double(val);
+		auto precision = _getPrecision(value);
+		return new Double(val, precision);
 	} catch (boost::bad_lexical_cast &ex){
 		throw AVMRuntimeError("Value could not be interpreted as Double");
 	}
@@ -88,7 +90,7 @@ const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
 	if (type == eOperandType::UnknownOperand)
 		throw AVMRuntimeError("Factory method have token invalid operand eType");
 	CreateTypeFunc ctf = (*this->_functions)[static_cast<unsigned int>(type)];
-	return (this->*ctf)(value);
+	return ((this->*ctf)(value));
 }
 
 OperandFactory::~OperandFactory() {
@@ -129,4 +131,28 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 		delete strOperandVal;
 		throw ex;
 	}
+}
+
+int OperandFactory::_getPrecision(const std::string &value) const {
+	auto i = value.find('.');
+	if (i != std::string::npos) {
+		auto count = 0;
+		while (isdigit(value[i + count + 1]))
+			count++;
+		if (value[i + count + 1] == 'e'){
+			auto exponent_str = value.substr(i + count + 2);
+			auto exponent = boost::lexical_cast<int>(exponent_str);
+			if (exponent < 0)
+				count -= exponent;
+		}
+		return count;
+	}
+	if ((i = value.find('e')) != std::string::npos ||
+		(i = value.find('E')) != std::string::npos) {
+		auto exponent_str = value.substr(i + 1);
+		auto exponent = boost::lexical_cast<int>(exponent_str);
+		if (exponent < 0)
+			return -exponent;
+	}
+	return 0;
 }

@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:13 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/25 02:14:46 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/02 16:02:47 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ private:
 	static OperandFactory *_instance;
 
 	std::vector<CreateTypeFunc> *_functions;
+
+	int _getPrecision(const std::string &value)const;
 
 	const IOperand *createInt8(const std::string &value) const;
 	const IOperand *createInt16(const std::string &value) const;

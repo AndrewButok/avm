@@ -6,59 +6,85 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 13:58:33 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 15:02:32 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 00:23:48 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include <fstream>
 #include <boost/filesystem.hpp>
 #include "Parser.hpp"
 #include "AVMRuntimeError.hpp"
 
-void parse_file(std::istream& stream, const std::string& stream_name, Parser& parser) {
-	std::string row;
-	int row_no = 1;
+void parse_rows(std::vector<std::string> vector,
+		const std::string& stream_name, Parser& parser) {
+	if (vector.empty())
+		return;
 	Token::eTokenType completed_instruction = Token::eTokenType::RawValue;
-	while (stream) {
+	for (size_t i = 0; i < vector.size(); i++) {
 		try {
-			getline(stream, row);
-			if (row.empty()) {
-				row_no++;
+			if (vector[i].empty())
 				continue;
-			}
-			completed_instruction = parser.parse(row);
+			completed_instruction = parser.parse(vector[i]);
 			if (completed_instruction == Token::eTokenType::Exit)
 				break;
-			if (stream.eof())
-				throw AVMRuntimeError("No Exit instruction in file.");
 		} catch (AVMRuntimeError &ex) {
-			std::cerr << "Runtime error of \"" << stream_name << "\" at line " << row_no << ": " << ex.what() << std::endl;
+			std::cerr << "Runtime error of \"" << stream_name
+				<< "\" at line " << i + 1 << ": " << ex.what() << std::endl;
 		}
-		row_no++;
 	}
 	if (completed_instruction != Token::eTokenType::Exit)
-		std::cerr << "Runtime error of \"" << stream_name << "\" at line " << row_no <<
-			": No exit instruction at the end fo the file" << std::endl;
+		std::cerr << "Runtime error of \"" << stream_name << "\" at line "
+			<< vector.size() << ": No exit instruction at the end fo the file" << std::endl;
 	parser.cleanExecutor();
+}
+
+std::vector<std::string>  parse_file(std::istream& stream) {
+	std::string row;
+	std::vector<std::string> file;
+	while (stream) {
+		getline(stream, row);
+		file.push_back(row);
+	}
+	return file;
+}
+
+std::vector<std::string>  parse_cin(std::istream& stream) {
+	std::string row;
+	std::vector<std::string> file;
+	while (stream) {
+		getline(stream, row);
+		auto eof = row.find(";;");
+		if (eof == std::string::npos)
+			file.push_back(row);
+		else {
+			file.push_back(row.substr(0, eof));
+			break;
+		}
+	}
+	return file;
 }
 
 int main(int argc, char** argv) {
 	Parser *parser = Parser::getInstance();
-	if (argc == 1)
-		parse_file(std::cin, "stdin", *parser);
-	else
-		for (int i = 1; i < argc; i++){
+	if (argc == 1) {
+		auto rows = parse_cin(std::cin);
+		parse_rows(rows, "stdin", *parser);
+	}
+	else {
+		for (int i = 1; i < argc; i++) {
 			if (boost::filesystem::is_regular_file(argv[i])) {
-				std::ifstream stream = std::ifstream(argv[i]);
-				if (errno == 0)
-					parse_file(stream, argv[i], *parser);
-				else
+				auto stream = std::ifstream(argv[i]);
+				if (errno == 0) {
+					auto rows = parse_file(stream);
+					parse_rows(rows, argv[i], *parser);
+				} else
 					std::cerr << argv[i] << strerror(errno) << std::endl;
-				} else {
-					std::cerr << "Runtime error of \"" << argv[i] << "\": Not regular file"<<std::endl;
+			} else {
+				std::cerr << "Runtime error of \"" << argv[i]
+						  << "\": Not regular file" << std::endl;
 			}
 		}
+	}
 	delete parser;
 	system("leaks Abstract-VM");
 	return 0;

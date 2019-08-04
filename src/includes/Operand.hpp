@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 13:19:28 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/03 01:59:19 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <sstream>
 #include <cmath>
+#include <iomanip>
 #include "IOperand.hpp"
 
 template <typename Base>
@@ -22,12 +23,13 @@ class Operand: public IOperand{
 private:
 	static void		_checkType(const IOperand &lo, const IOperand &ro);
 	Base			_val;
+	int				_precision;
 public:
 	//
 	//Canonical form
 	//
 	Operand();
-	explicit Operand(Base val);
+	explicit Operand(Base val, int precision);
 	Operand(const Operand<Base> &base);
 	Operand<Base> &operator=(const Operand<Base> &);
 	~Operand() override = default;
@@ -52,15 +54,15 @@ public:
 };
 
 template<typename Base>
-Operand<Base>::Operand(): _val(0) {}
+Operand<Base>::Operand(): _val(0), _precision(0) {}
 
 template<typename Base>
-Operand<Base>::Operand(Base val): _val(val) {
+Operand<Base>::Operand(Base val, int precision): _val(val), _precision(precision) {
 
 }
 
 template<typename Base>
-Operand<Base>::Operand(const Operand<Base> &base): _val(base._val) {}
+Operand<Base>::Operand(const Operand<Base> &base): _val(base._val), _precision(base._precision) {}
 
 template<typename Base>
 Operand<Base> &Operand<Base>::operator=(const Operand<Base> &base) {
@@ -75,7 +77,7 @@ char Operand<Base>::getValue() const {
 
 template<typename Base>
 int Operand<Base>::getPrecision() const {
-	return std::numeric_limits<Base>::epsilon();
+	return _precision;
 }
 
 template<typename Base>
@@ -120,7 +122,8 @@ const IOperand *Operand<Base>::operator+(const IOperand &right_operand) const {
 			this->_val < std::numeric_limits<Base>::min() - casted_ro._val)
 			throw AVMRuntimeError("Operand underflow");
 	}
-	return  new Operand<Base>(this->_val + casted_ro._val);
+	return  new Operand<Base>(this->_val + casted_ro._val,
+			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template<typename Base>
@@ -135,7 +138,8 @@ const IOperand *Operand<Base>::operator-(const IOperand &right_operand) const {
 			this->_val > std::numeric_limits<Base>::max() + casted_ro._val)
 			throw AVMRuntimeError("Operand overflow");
 	}
-	return  new Operand<Base>(this->_val - casted_ro._val);
+	return  new Operand<Base>(this->_val - casted_ro._val,
+			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template<typename Base>
@@ -144,15 +148,37 @@ const IOperand *Operand<Base>::operator/(const IOperand &right_operand) const {
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
 		throw AVMRuntimeError("Division by a zero");
-	auto result = new Operand<Base>(this->_val / casted_ro._val);
+	auto result = new Operand<Base>(this->_val / casted_ro._val,
+			this->_precision - casted_ro._precision);
 	return result;
 }
+
+template<>
+const IOperand *Operand<float>::operator/(const IOperand &right_operand) const {
+	Operand<float>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
+	auto result = new Operand<float>(this->_val / casted_ro._val,
+									this->_precision - casted_ro._precision);
+	return result;
+}
+
+template<>
+const IOperand *Operand<double>::operator/(const IOperand &right_operand) const {
+	Operand<double>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
+	auto result = new Operand<double>(this->_val / casted_ro._val,
+									this->_precision - casted_ro._precision);
+	return result;
+}
+
 
 template<typename Base>
 const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
+	auto precision = 0;
 	if (this->getType() < IOperand::eOperandType::Float) {
+		precision = casted_ro._precision + this->_precision;
 		if ((casted_ro._val > 0 && this->_val > 0
 			 && this->_val > std::numeric_limits<Base>::max() / casted_ro._val)
 			|| (casted_ro._val < 0 && this->_val < 0
@@ -166,7 +192,8 @@ const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
 				this->_val < std::numeric_limits<Base>::min() / casted_ro._val))
 			throw AVMRuntimeError("Operand underflow");
 	}
-	auto result = new Operand<Base>(this->_val * casted_ro._val);
+	auto result = new Operand<Base>(this->_val * casted_ro._val,
+			precision);
 	return result;
 }
 
@@ -176,7 +203,7 @@ const IOperand *Operand<Base>::operator%(const IOperand &right_operand) const {
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
 		throw AVMRuntimeError("Division by a zero");
-	auto result = new Operand<Base>(this->_val % casted_ro._val);
+	auto result = new Operand<Base>(this->_val % casted_ro._val, 0);
 	return result;
 }
 
@@ -184,9 +211,8 @@ template<>
 const IOperand *Operand<float>::operator%(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	if (casted_ro._val == 0)
-		throw AVMRuntimeError("Division by a zero");
-	auto result = new Operand<float>(fmod(this->_val, casted_ro._val));
+	auto result = new Operand<float>(fmod(this->_val, casted_ro._val),
+			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 	return result;
 }
 
@@ -194,9 +220,8 @@ template<>
 const IOperand *Operand<double>::operator%(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	if (casted_ro._val == 0)
-		throw AVMRuntimeError("Division by a zero");
-	auto result = new Operand<double>(fmod(this->_val, casted_ro._val));
+	auto result = new Operand<double>(fmod(this->_val, casted_ro._val),
+			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 	return result;
 }
 
@@ -214,6 +239,25 @@ const std::string &Operand<char>::toString() const {
 	return *(new std::string(ss.str()));
 }
 
+template<>
+const std::string &Operand<double>::toString() const {
+	std::stringstream ss;
+	if (this->_precision != 0)
+		ss << std::setprecision(this->_precision) << std::fixed <<this->_val;
+	else
+		ss << this->_val;
+	return *(new std::string(ss.str()));
+}
+
+template<>
+const std::string &Operand<float>::toString() const {
+	std::stringstream ss;
+	if (this->_precision != 0)
+		ss << std::setprecision( this->_precision) << std::fixed <<this->_val;
+	else
+		ss << this->_val;
+	return *(new std::string(ss.str()));
+}
 
 template<typename Base>
 void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {

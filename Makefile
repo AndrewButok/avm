@@ -6,7 +6,7 @@
 #    By: abutok <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/07/23 18:03:27 by abutok            #+#    #+#              #
-#    Updated: 2019/08/01 12:05:59 by abutok           ###   ########.fr        #
+#    Updated: 2019/08/02 23:06:23 by abutok           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))
 all: $(NAME)
 
 $(NAME): $(BINDIR) $(BIN)
-	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN) -L /Users/abutok/.brew/opt/boost/lib -lboost_filesystem
+	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN)  -lboost_filesystem #-L /Users/abutok/.brew/opt/boost/lib
 
 $(BINDIR):
 	@if [ ! -d "$(BINDIR)" ]; then mkdir $(BINDIR); fi
