@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:13 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/02 16:02:47 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 11:11:29 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define AVM_OPERANDFACTORY_HPP
 
 #include "IOperand.hpp"
+#include "AVMRuntimeError.hpp"
 
 class OperandFactory {
 private:
@@ -41,6 +42,10 @@ public:
 	const IOperand *createOperand(eOperandType type, const std::string &value);
 	const IOperand *createOperand(IOperand::eOperandType type, const IOperand *);
 
+	class OperandFactoryException: public AVMRuntimeError{
+	public:
+		explicit OperandFactoryException(std::string message);
+	};
 };
 
 

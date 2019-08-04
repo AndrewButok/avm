@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 13:58:33 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 00:23:48 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 11:49:22 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void parse_rows(std::vector<std::string> vector,
 		const std::string& stream_name, Parser& parser) {
 	if (vector.empty())
 		return;
-	Token::eTokenType completed_instruction = Token::eTokenType::RawValue;
+	auto completed_instruction = Token::eTokenType::RawValue;
 	for (size_t i = 0; i < vector.size(); i++) {
 		try {
 			if (vector[i].empty())
@@ -39,8 +39,8 @@ void parse_rows(std::vector<std::string> vector,
 }
 
 std::vector<std::string>  parse_file(std::istream& stream) {
-	std::string row;
-	std::vector<std::string> file;
+	auto row = std::string();
+	auto file = std::vector<std::string>();
 	while (stream) {
 		getline(stream, row);
 		file.push_back(row);
@@ -49,8 +49,8 @@ std::vector<std::string>  parse_file(std::istream& stream) {
 }
 
 std::vector<std::string>  parse_cin(std::istream& stream) {
-	std::string row;
-	std::vector<std::string> file;
+	auto row = std::string();
+	auto file = std::vector<std::string>();
 	while (stream) {
 		getline(stream, row);
 		auto eof = row.find(";;");
@@ -65,7 +65,7 @@ std::vector<std::string>  parse_cin(std::istream& stream) {
 }
 
 int main(int argc, char** argv) {
-	Parser *parser = Parser::getInstance();
+	auto parser = Parser::getInstance();
 	if (argc == 1) {
 		auto rows = parse_cin(std::cin);
 		parse_rows(rows, "stdin", *parser);
@@ -86,6 +86,5 @@ int main(int argc, char** argv) {
 		}
 	}
 	delete parser;
-	system("leaks Abstract-VM");
 	return 0;
 }

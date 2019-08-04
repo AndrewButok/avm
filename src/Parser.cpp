@@ -6,11 +6,10 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:26 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 15:32:40 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 14:04:58 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "AVMRuntimeError.hpp"
 #include "Parser.hpp"
 
 Parser* Parser::_instance = nullptr;
@@ -32,6 +31,8 @@ Parser::Parser() {
 	_operators.insert(eTokenType::Min);
 	_operators.insert(eTokenType::Max);
 	_operators.insert(eTokenType::Pow);
+	_operators.insert(eTokenType::Sqrt);
+	_operators.insert(eTokenType::Log);
 	_constructors.insert(eTokenType::ConstructorInt8);
 	_constructors.insert(eTokenType::ConstructorInt16);
 	_constructors.insert(eTokenType::ConstructorInt32);
@@ -69,46 +70,46 @@ void Parser::_checkTokens(std::vector<Token *> &tokens) {
     auto iter = tokens.begin();
     auto end = tokens.end();
 	if (_operators.find((*iter)->getType()) == _operators.end())
-		throw AVMRuntimeError("Invalid operator");
+		throw ParserException("Invalid operator");
 	if ((((*iter)->getType() != eTokenType::Assert &&
             (*iter)->getType() != eTokenType::Push) &&
             (iter + 1) == end))
 		return ;
 	if ((iter + 1) != end && (*(iter + 1))->getType() != eTokenType::WS)
-		throw AVMRuntimeError("Invalid operator");
+		throw ParserException("Invalid operator");
 	if ((((*iter)->getType() == eTokenType::Assert ||
             (*iter)->getType() == eTokenType::Push) &&
             (iter + 1) == end)||
 		((*iter)->getType() != eTokenType::Assert &&
 		 tokens[0]->getType() != eTokenType::Push &&
                 ((iter + 1) != end)))
-		throw AVMRuntimeError("Invalid number of arguments");
+		throw ParserException("Invalid number of arguments");
 	iter++;
 	if ((*iter)->getType() != eTokenType::WS)
-		throw AVMRuntimeError("Invalid operator");
+		throw ParserException("Invalid operator");
 	iter++;
 	if (iter == end)
-	    throw AVMRuntimeError("No operator argument");
+	    throw ParserException("No operator argument");
 	if (_constructors.find((*iter)->getType()) == _constructors.end())
-		throw AVMRuntimeError("Invalid operator argument");
+		throw ParserException("Invalid operator argument");
 	iter++;
 	if (iter == end ||
         (*iter)->getType() != eTokenType::OBrace)
-		throw AVMRuntimeError("Missing constructor opening bracket");
+		throw ParserException("Missing constructor opening bracket");
 	iter++;
 	if (iter == end ||
         (*iter)->getType() != eTokenType::RawValue)
-		throw AVMRuntimeError("Missing constructor value");
+		throw ParserException("Missing constructor value");
 	iter++;
 	if (iter == end ||
         (*iter)->getType() != eTokenType::CBrace)
-		throw AVMRuntimeError("Missing constructor closing bracket");
+		throw ParserException("Missing constructor closing bracket");
 	iter++;
 	if (iter != end &&
         (*iter)->getType() == eTokenType::WS)
-		throw AVMRuntimeError("Too many arguments");
+		throw ParserException("Too many arguments");
 	if (iter != end)
-		throw AVMRuntimeError("Invalid argument");
+		throw ParserException("Invalid argument");
 }
 
 Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
@@ -159,10 +160,16 @@ Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
 		case eTokenType::Pow:
 			_executor->pow();
 			break;
+		case eTokenType::Sqrt:
+			_executor->sqrt();
+			break;
+		case eTokenType::Log:
+			_executor->log();
+			break;
 		case eTokenType::Exit:
 			break;
 		default:
-			throw AVMRuntimeError("Impossible. How you pass non operator token?");
+			throw ParserException("Impossible. How you pass non operator token?");
 	}
 	return tokens[0]->getType();
 }
@@ -188,9 +195,13 @@ Parser::makeOperand(Token *constructorToken, Token *rawValueToken) {
 	if (constructorToken->getType() == eTokenType::ConstructorFloat)
 		return _operandFactory->createOperand(eOperandType::Float, rawValueToken->getValue());
 	else
-		throw AVMRuntimeError("Illegal constructor");
+		throw ParserException("Illegal constructor");
 }
 
 void Parser::cleanExecutor() {
 	this->_executor->cleanStack();
+}
+
+Parser::ParserException::ParserException(std::string message) : AVMRuntimeError(std::move(message)) {
+
 }

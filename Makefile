@@ -33,7 +33,7 @@ BIN = $(addprefix $(BINDIR), $(SRC:.cpp=.o))
 all: $(NAME)
 
 $(NAME): $(BINDIR) $(BIN)
-	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN)  -lboost_filesystem #-L /Users/abutok/.brew/opt/boost/lib
+	$(COMPILER) -o $(NAME) -I $(INCLUDEDIR) -I $(BOOSTINCLUDE) $(BIN)  -lboost_filesystem -L /Users/abutok/.brew/opt/boost/lib
 
 $(BINDIR):
 	@if [ ! -d "$(BINDIR)" ]; then mkdir $(BINDIR); fi

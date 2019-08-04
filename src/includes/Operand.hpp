@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/03 01:59:19 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 15:50:40 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <iostream>
 #include "IOperand.hpp"
 
 template <typename Base>
@@ -51,14 +52,23 @@ public:
 	bool				operator<(const IOperand &operand) const override;
 
 	const std::string	&toString() const override;
+
+	class OperandException: public AVMRuntimeError{
+	public:
+		explicit OperandException(std::string message) : AVMRuntimeError(std::move(message)) {
+		}
+	};
 };
 
 template<typename Base>
 Operand<Base>::Operand(): _val(0), _precision(0) {}
 
 template<typename Base>
-Operand<Base>::Operand(Base val, int precision): _val(val), _precision(precision) {
-
+Operand<Base>::Operand(Base val, int precision): _val(val) {
+	if (precision < 0)
+		_precision = 0;
+	else
+		_precision = precision;
 }
 
 template<typename Base>
@@ -114,31 +124,56 @@ template<typename Base>
 const IOperand *Operand<Base>::operator+(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
-	if (this->getType() < IOperand::eOperandType::Float) {
-		if (casted_ro._val > 0 &&
-			this->_val > std::numeric_limits<Base>::max() - casted_ro._val)
-			throw AVMRuntimeError("Operand overflow");
-		if (casted_ro._val < 0 &&
-			this->_val < std::numeric_limits<Base>::min() - casted_ro._val)
-			throw AVMRuntimeError("Operand underflow");
-	}
-	return  new Operand<Base>(this->_val + casted_ro._val,
-			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
+	if (casted_ro._val > 0 &&
+		this->_val > std::numeric_limits<Base>::max() - casted_ro._val)
+		throw OperandException("Operand overflow");
+	if (casted_ro._val < 0 &&
+		this->_val < std::numeric_limits<Base>::min() - casted_ro._val)
+		throw OperandException("Operand underflow");
+	return  new Operand<Base>(this->_val + casted_ro._val, 0);
+}
+template <>
+const IOperand *Operand<float>::operator+(const IOperand &right_operand) const {
+	Operand<float>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
+	return  new Operand<float>(this->_val + casted_ro._val,
+							this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
+}
+
+template <>
+const IOperand *Operand<double>::operator+(const IOperand &right_operand) const {
+	Operand<double>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
+	return  new Operand<double>(this->_val + casted_ro._val,
+							this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template<typename Base>
 const IOperand *Operand<Base>::operator-(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
-	if (this->getType() < IOperand::eOperandType::Float) {
-		if (casted_ro._val > 0 &&
-			this->_val < std::numeric_limits<Base>::min() + casted_ro._val)
-			throw AVMRuntimeError("Operand underflow");
-		if (casted_ro._val < 0 &&
-			this->_val > std::numeric_limits<Base>::max() + casted_ro._val)
-			throw AVMRuntimeError("Operand overflow");
-	}
-	return  new Operand<Base>(this->_val - casted_ro._val,
+	if (casted_ro._val > 0 &&
+		this->_val < std::numeric_limits<Base>::min() + casted_ro._val)
+		throw OperandException("Operand underflow");
+	if (casted_ro._val < 0 &&
+		this->_val > std::numeric_limits<Base>::max() + casted_ro._val)
+		throw OperandException("Operand overflow");
+	return  new Operand<Base>(this->_val - casted_ro._val, 0);
+}
+
+template<>
+const IOperand *Operand<float>::operator-(const IOperand &right_operand) const {
+	Operand<float>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
+	return  new Operand<float>(this->_val - casted_ro._val,
+			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
+}
+
+template<>
+const IOperand *Operand<double>::operator-(const IOperand &right_operand) const {
+	Operand<double>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
+	return  new Operand<double>(this->_val - casted_ro._val,
 			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
@@ -147,9 +182,8 @@ const IOperand *Operand<Base>::operator/(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
-		throw AVMRuntimeError("Division by a zero");
-	auto result = new Operand<Base>(this->_val / casted_ro._val,
-			this->_precision - casted_ro._precision);
+		throw OperandException("Division by a zero");
+	auto result = new Operand<Base>(this->_val / casted_ro._val, 0);
 	return result;
 }
 
@@ -157,8 +191,7 @@ template<>
 const IOperand *Operand<float>::operator/(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	auto result = new Operand<float>(this->_val / casted_ro._val,
-									this->_precision - casted_ro._precision);
+	auto result = new Operand<float>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
 	return result;
 }
 
@@ -166,8 +199,9 @@ template<>
 const IOperand *Operand<double>::operator/(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	auto result = new Operand<double>(this->_val / casted_ro._val,
-									this->_precision - casted_ro._precision);
+	std::cout << this->_precision <<std::endl;
+	std::cout << casted_ro._precision <<std::endl;
+	auto result = new Operand<double>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
 	return result;
 }
 
@@ -176,24 +210,37 @@ template<typename Base>
 const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
-	auto precision = 0;
-	if (this->getType() < IOperand::eOperandType::Float) {
-		precision = casted_ro._precision + this->_precision;
-		if ((casted_ro._val > 0 && this->_val > 0
-			 && this->_val > std::numeric_limits<Base>::max() / casted_ro._val)
-			|| (casted_ro._val < 0 && this->_val < 0
-				&&
-				this->_val < std::numeric_limits<Base>::max() / casted_ro._val))
-			throw AVMRuntimeError("Operand overflow");
-		if ((casted_ro._val > 0 && this->_val < 0
-			 && this->_val > std::numeric_limits<Base>::min() / casted_ro._val)
-			|| (casted_ro._val < 0 && this->_val > 0
-				&&
-				this->_val < std::numeric_limits<Base>::min() / casted_ro._val))
-			throw AVMRuntimeError("Operand underflow");
-	}
-	auto result = new Operand<Base>(this->_val * casted_ro._val,
-			precision);
+	if ((casted_ro._val > 0 && this->_val > 0
+		 && this->_val > std::numeric_limits<Base>::max() / casted_ro._val)
+		|| (casted_ro._val < 0 && this->_val < 0
+			&&
+			this->_val < std::numeric_limits<Base>::max() / casted_ro._val))
+		throw OperandException("Operand overflow");
+	if ((casted_ro._val > 0 && this->_val < 0
+		 && this->_val > std::numeric_limits<Base>::min() / casted_ro._val)
+		|| (casted_ro._val < 0 && this->_val > 0
+			&&
+			this->_val < std::numeric_limits<Base>::min() / casted_ro._val))
+		throw OperandException("Operand underflow");
+	auto result = new Operand<Base>(this->_val * casted_ro._val, 0);
+	return result;
+}
+
+template<>
+const IOperand *Operand<float>::operator*(const IOperand &right_operand) const {
+	Operand<float>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
+	auto result = new Operand<float>(this->_val * casted_ro._val,
+									 this->_precision + casted_ro._precision);
+	return result;
+}
+
+template<>
+const IOperand *Operand<double>::operator*(const IOperand &right_operand) const {
+	Operand<double>::_checkType(*this, right_operand);
+	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
+	auto result = new Operand<double>(this->_val * casted_ro._val,
+									  this->_precision + casted_ro._precision);
 	return result;
 }
 
@@ -202,7 +249,7 @@ const IOperand *Operand<Base>::operator%(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
-		throw AVMRuntimeError("Division by a zero");
+		throw OperandException("Division by a zero");
 	auto result = new Operand<Base>(this->_val % casted_ro._val, 0);
 	return result;
 }
@@ -246,7 +293,8 @@ const std::string &Operand<double>::toString() const {
 		ss << std::setprecision(this->_precision) << std::fixed <<this->_val;
 	else
 		ss << this->_val;
-	return *(new std::string(ss.str()));
+	auto result = new std::string(ss.str());
+	return *result;
 }
 
 template<>
@@ -256,7 +304,8 @@ const std::string &Operand<float>::toString() const {
 		ss << std::setprecision( this->_precision) << std::fixed <<this->_val;
 	else
 		ss << this->_val;
-	return *(new std::string(ss.str()));
+	auto result = new std::string(ss.str());
+	return *result;
 }
 
 template<typename Base>
@@ -264,7 +313,7 @@ void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {
 	if (lo.getType() == IOperand::eOperandType::UnknownOperand ||
 		ro.getType() == IOperand::eOperandType::UnknownOperand ||
 		lo.getType() != ro.getType())
-		throw AVMRuntimeError("Wrong operand eType");
+		throw OperandException("Wrong operand eType");
 }
 
 template<typename Base>

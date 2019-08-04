@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 18:51:02 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 13:43:34 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 11:36:33 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define AVM_EXECUTOR_HPP
 
 #include <vector>
+#include "AVMRuntimeError.hpp"
 #include "IOperand.hpp"
 #include "OperandFactory.hpp"
 
@@ -58,6 +59,13 @@ public:
 	void max();
 	void min();
 	void pow();
+	void sqrt();
+	void log();
+
+	class ExecutorException: public AVMRuntimeError{
+		public:
+			explicit ExecutorException(std::string message);
+	};
 };
 
 

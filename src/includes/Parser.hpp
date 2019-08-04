@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:15 by abutok            #+#    #+#             */
-/*   Updated: 2019/07/30 15:57:11 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 11:16:10 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "OperandFactory.hpp"
 #include "Executor.hpp"
 #include "Lexer.hpp"
+#include "AVMRuntimeError.hpp"
 
 class Parser {
 private:
@@ -43,6 +44,12 @@ public:
 
 	eTokenType parse(const std::string &);
 	void cleanExecutor();
+
+	class ParserException: public AVMRuntimeError{
+	public:
+		explicit ParserException(std::string message);
+	};
+
 };
 
 

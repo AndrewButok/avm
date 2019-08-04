@@ -1,3 +1,5 @@
+#include <utility>
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,13 +8,12 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 00:46:31 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 14:04:58 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <boost/lexical_cast.hpp>
-#include "AVMRuntimeError.hpp"
 #include "Executor.hpp"
 
 Executor* Executor::_instance = nullptr;
@@ -47,9 +48,9 @@ void Executor::_checkStack(unsigned int needed) const {
 	if (this->_stack->empty())
 		throw AVMRuntimeError("Stack is empty");
 	if (this->_stack->size() < needed) {
-		std::stringstream ss;
+		auto ss = std::stringstream();
 		ss << "Stack have only " << this->_stack->size() << " element(s)";
-		throw AVMRuntimeError(ss.str());
+		throw ExecutorException(ss.str());
 	}
 }
 
@@ -64,7 +65,7 @@ void Executor::popFromStack() {
 		delete *(this->_stack->end() - 1);
 		this->_stack->pop_back();
 	} catch (AVMRuntimeError &ex) {
-		throw AVMRuntimeError(std::string("Pop error: ") + ex.what());
+		throw ExecutorException(std::string("Pop error: ") + ex.what());
 	}
 }
 
@@ -72,18 +73,20 @@ void Executor::assertFromStack(const IOperand *operand) {
 	try {
 		this->_checkStack(1);
 		if (operand != nullptr) {
-			const IOperand *last = *(this->_stack->rbegin());
-			const std::string *s1 = &(last->toString());
-			const std::string *s2 = &(operand->toString());
+			auto last = *(this->_stack->rbegin());
+			auto s1 = &(last->toString()),
+				s2 = &(operand->toString());
+			auto d1 = boost::lexical_cast<double>(*s1),
+				d2 = boost::lexical_cast<double>(*s2);
 			try {
 				if (last->getType() != operand->getType() &&
-					*s1 == *s2)
-					throw AVMRuntimeError("Different operand types");
+					d1 == d2)
+					throw ExecutorException("Different operand types");
 				if (last->getType() != operand->getType() &&
-					*s1 != *s2)
-					throw AVMRuntimeError("Different operand types and values");
-				if (*s1 != *s2)
-					throw AVMRuntimeError("Different operand values");
+					d2 != d1)
+					throw ExecutorException("Different operand types and values");
+				if (d1 != d2)
+					throw ExecutorException("Different operand values");
 				delete s1;
 				delete s2;
 				delete operand;
@@ -91,11 +94,11 @@ void Executor::assertFromStack(const IOperand *operand) {
 				delete s1;
 				delete s2;
 				delete operand;
-				throw AVMRuntimeError(ex.what());
+				throw ExecutorException(ex.what());
 			}
 		}
 	} catch (AVMRuntimeError &ex) {
-		throw AVMRuntimeError(std::string("Assert error:") + ex.what());
+		throw ExecutorException(std::string("Assert error: ") + ex.what());
 	}
 }
 
@@ -128,7 +131,7 @@ void Executor::_executeArithmeticOperator(eOperatorType type) {
 				*(iter + 1) = buf;
 			}
 		}
-		Operator oper = (*this->_operators)[static_cast<unsigned int>(type)];
+		auto oper = (*this->_operators)[static_cast<unsigned int>(type)];
 		result = (((*(iter + 1))->*oper)(**iter));
 		delete *(iter + 1);
 		delete *(iter);
@@ -141,7 +144,7 @@ void Executor::add() {
 	try {
 		this->_executeArithmeticOperator(eOperatorType::Add);
 	} catch (std::exception &ex) {
-		throw AVMRuntimeError("Addition error: " + std::string(ex.what()));
+		throw ExecutorException("Addition error: " + std::string(ex.what()));
 	}
 }
 
@@ -149,7 +152,7 @@ void Executor::sub() {
 	try {
 		this->_executeArithmeticOperator(eOperatorType::Sub);
 	} catch (std::exception &ex) {
-		throw AVMRuntimeError("Subtraction error: " + std::string(ex.what()));
+		throw ExecutorException("Subtraction error: " + std::string(ex.what()));
 	}
 
 }
@@ -158,7 +161,7 @@ void Executor::mul() {
 	try {
 		this->_executeArithmeticOperator(eOperatorType::Mul);
 	} catch (std::exception &ex) {
-		throw AVMRuntimeError("Multiplication error: " + std::string(ex.what()));
+		throw ExecutorException("Multiplication error: " + std::string(ex.what()));
 	}
 }
 
@@ -166,7 +169,7 @@ void Executor::div() {
 	try {
 		this->_executeArithmeticOperator(eOperatorType::Div);
 	} catch (std::exception &ex) {
-		throw AVMRuntimeError("Division error: " + std::string(ex.what()));
+		throw ExecutorException("Division error: " + std::string(ex.what()));
 	}
 }
 
@@ -174,22 +177,22 @@ void Executor::mod() {
 	try {
 		this->_executeArithmeticOperator(eOperatorType::Mod);
 	} catch (std::exception &ex) {
-		throw AVMRuntimeError("Modulo error: " + std::string(ex.what()));
+		throw ExecutorException("Modulo error: " + std::string(ex.what()));
 	}
 }
 
 void Executor::print() {
 	try {
 		this->_checkStack(1);
-		const IOperand *last = *(this->_stack->rbegin());
+		auto last = *(this->_stack->rbegin());
 		if (last->getType() != IOperand::eOperandType::Int8)
-			throw AVMRuntimeError("Wrong operand eType to print");
-		const std::string *val = &(last->toString());
-		int ch = boost::lexical_cast<int>(*val);
+			throw ExecutorException("Wrong operand eType to print");
+		auto val = &(last->toString());
+		auto ch = boost::lexical_cast<int>(*val);
 		delete val;
 		std::cout << static_cast<char>(ch);
 	} catch(AVMRuntimeError &ex) {
-		throw AVMRuntimeError("Print error: " + std::string(ex.what()));
+		throw ExecutorException("Print error: " + std::string(ex.what()));
 	}
 }
 
@@ -200,11 +203,11 @@ void Executor::max() {
 		for (auto op: *(this->_stack))
 			if (max == nullptr || *max < *op)
 				max = op;
-		const std::string *maxv = &(max->toString());
+		auto maxv = &(max->toString());
 		std::cout << *maxv << std::endl;
 		delete maxv;
 	} catch (AVMRuntimeError &ex) {
-		throw AVMRuntimeError("Maximum error: " + std::string(ex.what()));
+		throw ExecutorException("Maximum error: " + std::string(ex.what()));
 	}
 }
 
@@ -215,11 +218,11 @@ void Executor::min() {
 		for (auto op: *(this->_stack))
 			if (min == nullptr || *min > *op)
 				min = op;
-		const std::string *minv = &(min->toString());
+		auto minv = &(min->toString());
 		std::cout << *minv << std::endl;
 		delete minv;
 	} catch (AVMRuntimeError &ex) {
-		throw AVMRuntimeError("Minimum error: " + std::string(ex.what()));
+		throw ExecutorException("Minimum error: " + std::string(ex.what()));
 	}
 }
 
@@ -227,13 +230,13 @@ void Executor::pow() {
 	try {
 		this->_checkStack(2);
 		auto iter = this->_stack->rbegin();
-		const std::string *rOperand = &(*iter++)->toString(),
-				*lOperand = &(*iter)->toString();
+		auto rOperand = &(*iter++)->toString(),
+			lOperand = &(*iter)->toString();
 		delete *(iter - 1);
 		delete *iter;
 		this->_stack->pop_back();
 		this->_stack->pop_back();
-		std::stringstream ss;
+		auto ss = std::stringstream();
 		ss << std::pow(boost::lexical_cast<double>(*lOperand),
 					   boost::lexical_cast<double>(*rOperand));
 		auto result = this->_operandFactory->createOperand(
@@ -242,7 +245,7 @@ void Executor::pow() {
 		delete lOperand;
 		delete rOperand;
 	} catch (AVMRuntimeError &ex) {
-		throw AVMRuntimeError("Power error: " + std::string(ex.what()));
+		throw ExecutorException("Power error: " + std::string(ex.what()));
 	}
 }
 
@@ -250,4 +253,51 @@ void Executor::cleanStack() {
 	for (auto ptr: *this->_stack)
 		delete ptr;
 	this->_stack->clear();
+}
+
+void Executor::sqrt() {
+	try{
+		this->_checkStack(1);
+		auto iter = this->_stack->rbegin();
+		auto operand =  &(*iter)->toString();
+		auto val = boost::lexical_cast<double>(*operand);
+		if (val < 0) {
+			delete operand;
+			throw ExecutorException("Cannot be applied to negative number");
+		}
+		val = std::sqrt(val);
+		delete operand;
+		auto ss = std::stringstream();
+		ss << val;
+		delete *iter;
+		*iter = _operandFactory->createOperand(IOperand::eOperandType::Double, ss.str());
+	} catch (AVMRuntimeError &ex) {
+		throw ExecutorException("Square root error: " + std::string(ex.what()));
+	}
+}
+
+void Executor::log() {
+	try{
+		this->_checkStack(1);
+		auto iter = this->_stack->rbegin();
+		auto operand =  &(*iter)->toString();
+		auto val = boost::lexical_cast<double>(*operand);
+		if (val < 0) {
+			delete operand;
+			throw ExecutorException("Cannot be applied to negative number");
+		}
+		val = std::log(val);
+		delete operand;
+		auto ss = std::stringstream();
+		ss << val;
+		delete *iter;
+		*iter = _operandFactory->createOperand(IOperand::eOperandType::Double, ss.str());
+	} catch (AVMRuntimeError &ex) {
+		throw ExecutorException("Log error: " + std::string(ex.what()));
+	}
+}
+
+Executor::ExecutorException::ExecutorException(std::string message)
+		: AVMRuntimeError(std::move(message)) {
+
 }

@@ -6,13 +6,12 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:19 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/02 22:24:48 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 13:27:42 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <vector>
 #include <boost/lexical_cast.hpp>
-#include "AVMRuntimeError.hpp"
 #include "OperandFactory.hpp"
 #include "Operand.hpp"
 
@@ -43,7 +42,7 @@ const IOperand *OperandFactory::createInt8(const std::string &value) const {
 			throw boost::bad_lexical_cast();
 		return new Int8(static_cast<char>(val), 0);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Value could not be interpreted as Int8");
+		throw OperandFactoryException("Value could not be interpreted as Int8");
 	}
 }
 
@@ -52,7 +51,7 @@ const IOperand *OperandFactory::createInt16(const std::string &value) const {
 		auto val = boost::lexical_cast<short>(value);
 		return new Int16(val, 0);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Value could not be interpreted as Int16");
+		throw OperandFactoryException("Value could not be interpreted as Int16");
 	}
 }
 
@@ -61,7 +60,7 @@ const IOperand *OperandFactory::createInt32(const std::string &value) const {
 		auto val = boost::lexical_cast<int>(value);
 		return new Int32(val, 0);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Value could not be interpreted as Int32");
+		throw OperandFactoryException("Value could not be interpreted as Int32");
 	}
 }
 
@@ -71,7 +70,7 @@ const IOperand *OperandFactory::createFloat(const std::string &value) const {
 		auto precision = _getPrecision(value);
 		return new Float(val, precision);
 	} catch (boost::bad_lexical_cast &ex){
-		throw AVMRuntimeError("Value could not be interpreted as Float");
+		throw OperandFactoryException("Value could not be interpreted as Float");
 	}
 }
 
@@ -88,8 +87,8 @@ const IOperand *OperandFactory::createDouble(const std::string &value) const {
 const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
 											  const std::string &value) {
 	if (type == eOperandType::UnknownOperand)
-		throw AVMRuntimeError("Factory method have token invalid operand eType");
-	CreateTypeFunc ctf = (*this->_functions)[static_cast<unsigned int>(type)];
+		throw OperandFactoryException("Factory method have token invalid operand eType");
+	auto ctf = (*this->_functions)[static_cast<unsigned int>(type)];
 	return ((this->*ctf)(value));
 }
 
@@ -102,9 +101,9 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 		return nullptr;
 	if (operand->getType() == IOperand::eOperandType::UnknownOperand ||
 		operand->getType() >= type)
-		throw AVMRuntimeError("Operand eType is greater than eType sent to function");
+		throw OperandFactoryException("Operand eType is greater than eType sent to function");
 	const IOperand *result = nullptr;
-	const std::string *strOperandVal = &(operand->toString());
+	auto strOperandVal = &(operand->toString());
 	try {
 		switch (type){
 			case IOperand::eOperandType::Int8:
@@ -123,7 +122,7 @@ const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const
 				result = this->createOperand(IOperand::eOperandType ::Double, *strOperandVal);
 				break;
 			default:
-				throw AVMRuntimeError("Unknown copy error");
+				throw OperandFactoryException("Unknown copy error");
 		}
 		delete strOperandVal;
 		return result;
@@ -155,4 +154,9 @@ int OperandFactory::_getPrecision(const std::string &value) const {
 			return -exponent;
 	}
 	return 0;
+}
+
+OperandFactory::OperandFactoryException::OperandFactoryException(
+		std::string message) : AVMRuntimeError(std::move(message)) {
+
 }

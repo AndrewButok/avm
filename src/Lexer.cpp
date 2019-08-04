@@ -6,15 +6,13 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/26 23:36:42 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 15:32:40 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/04 15:07:11 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Lexer.hpp"
 
-std::map<std::string, Lexer::eType> Lexer::_nonValueTokens {
-
-};
+std::map<std::string, Lexer::eType> Lexer::_nonValueTokens;
 
 std::vector<Token *> *Lexer::tokenize(const std::string &row) {
 	_initializeNVT();
@@ -51,8 +49,8 @@ Token *Lexer::_getValueToken(const std::string &row, size_t &pos) {
 	for (size_t i = pos + 1; i < row.size(); i++) {
 		for (auto &token: _nonValueTokens) {
 			if (row.find(token.first, i) == i) {
-				std::string val = row.substr(pos, i - pos);
-				auto *result = new Token(val);
+				auto val = row.substr(pos, i - pos);
+				auto result = new Token(val);
 				pos = i - 1;
 				return result;
 			}
@@ -75,8 +73,8 @@ void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
 	}
 	for(auto iter = vector.begin(); iter != vector.end(); iter++) {
 		if (iter + 1 != vector.end()) {
-			Token *t1 = *iter,
-				*t2 = *(iter + 1);
+			auto t1 = *iter,
+				t2 = *(iter + 1);
 			while (t1->getType() == eType::WS && t2->getType() == eType::WS) {
 				delete *(iter + 1);
 				vector.erase(iter + 1);
@@ -89,8 +87,8 @@ void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
 void Lexer::_concatRaw(std::vector<Token *> &vector) {
 	for(auto iter = vector.begin(); iter != vector.end(); iter++) {
 		if ((*iter)->getType() == eType::WS) {
-			Token *l = *(iter - 1),
-				*r = *(iter + 1);
+			auto l = *(iter - 1),
+				r = *(iter + 1);
 			if (l->getType() == eType::RawValue && l->getType() == r->getType())
 			{
 				iter--;
@@ -131,6 +129,8 @@ void Lexer::_initializeNVT() {
 	_nonValueTokens.insert(std::make_pair("min", eType::Min));
 	_nonValueTokens.insert(std::make_pair("max", eType::Max));
 	_nonValueTokens.insert(std::make_pair("pow", eType::Pow));
+	_nonValueTokens.insert(std::make_pair("sqrt", eType::Sqrt));
+	_nonValueTokens.insert(std::make_pair("log", eType::Log));
 	_nonValueTokens.insert(std::make_pair(" ", eType::WS));
 	_nonValueTokens.insert(std::make_pair("\t", eType::WS));
 }
