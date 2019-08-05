@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 15:50:40 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 11:03:44 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
-#include <iostream>
 #include "IOperand.hpp"
 
 template <typename Base>
@@ -199,8 +198,6 @@ template<>
 const IOperand *Operand<double>::operator/(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	std::cout << this->_precision <<std::endl;
-	std::cout << casted_ro._precision <<std::endl;
 	auto result = new Operand<double>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
 	return result;
 }
