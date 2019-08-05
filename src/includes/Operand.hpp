@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 11:03:44 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 11:47:39 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ public:
 	Operand(const Operand<Base> &base);
 	Operand<Base> &operator=(const Operand<Base> &);
 	~Operand() override = default;
-
-	char getValue() const;
 
 	//
 	//IOperand functions
@@ -77,11 +75,6 @@ template<typename Base>
 Operand<Base> &Operand<Base>::operator=(const Operand<Base> &base) {
 	this->_val = base._val;
 	return *this;
-}
-
-template<typename Base>
-char Operand<Base>::getValue() const {
-	return this->_val;
 }
 
 template<typename Base>
