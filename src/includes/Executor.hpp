@@ -28,8 +28,8 @@ private:
 	OperandFactory *_operandFactory;
 
 	Executor();
-	Executor(const Executor &executor) = default;
-	Executor &operator=(const Executor&) = default;
+	Executor(const Executor &executor);
+	Executor &operator=(const Executor&);
 	void _checkStack(unsigned int) const;
 	void _executeArithmeticOperator(eOperatorType type);
 

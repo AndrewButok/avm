@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 14:08:37 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 11:44:20 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 12:28:19 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 
 #include <string>
+#include <map>
+#include <set>
 
 class Token {
 public:
@@ -25,6 +27,10 @@ private:
 
 	Token();
 public:
+	static std::map<std::string, eTokenType> _nonValueTokens;
+	static std::set<eTokenType> _operators;
+	static std::set<eTokenType> _constructors;
+
 	explicit Token(std::string value);
 	explicit Token(eTokenType type);
 	Token(const Token&) = default;

@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 13:58:33 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 11:48:50 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 12:42:24 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 					std::cerr << argv[i] << strerror(errno) << std::endl;
 			} else {
 				std::cerr << "Runtime error of \"" << argv[i]
-						  << "\": Not regular file" << std::endl;
+						  << "\": Invalid file" << std::endl;
 			}
 		}
 	}

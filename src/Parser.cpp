@@ -17,27 +17,6 @@ Parser* Parser::_instance = nullptr;
 Parser::Parser() {
 	_operandFactory = OperandFactory::getInstance();
 	_executor = Executor::getInstance();
-	_operators.insert(eTokenType::Push);
-	_operators.insert(eTokenType::Assert);
-	_operators.insert(eTokenType::Pop);
-	_operators.insert(eTokenType::Dump);
-	_operators.insert(eTokenType::Add);
-	_operators.insert(eTokenType::Sub);
-	_operators.insert(eTokenType::Mul);
-	_operators.insert(eTokenType::Div);
-	_operators.insert(eTokenType::Mod);
-	_operators.insert(eTokenType::Print);
-	_operators.insert(eTokenType::Exit);
-	_operators.insert(eTokenType::Min);
-	_operators.insert(eTokenType::Max);
-	_operators.insert(eTokenType::Pow);
-	_operators.insert(eTokenType::Sqrt);
-	_operators.insert(eTokenType::Log);
-	_constructors.insert(eTokenType::ConstructorInt8);
-	_constructors.insert(eTokenType::ConstructorInt16);
-	_constructors.insert(eTokenType::ConstructorInt32);
-	_constructors.insert(eTokenType::ConstructorFloat);
-	_constructors.insert(eTokenType::ConstructorDouble);
 }
 
 Parser::~Parser() {
@@ -69,7 +48,7 @@ void Parser::_checkTokens(std::vector<Token *> &tokens) {
         return;
     auto iter = tokens.begin();
     auto end = tokens.end();
-	if (_operators.find((*iter)->getType()) == _operators.end())
+	if (Token::_operators.find((*iter)->getType()) == Token::_operators.end())
 		throw ParserException("Invalid operator");
 	if ((((*iter)->getType() != eTokenType::Assert &&
             (*iter)->getType() != eTokenType::Push) &&
@@ -90,7 +69,7 @@ void Parser::_checkTokens(std::vector<Token *> &tokens) {
 	iter++;
 	if (iter == end)
 	    throw ParserException("No operator argument");
-	if (_constructors.find((*iter)->getType()) == _constructors.end())
+	if (Token::_constructors.find((*iter)->getType()) == Token::_constructors.end())
 		throw ParserException("Invalid operator argument");
 	iter++;
 	if (iter == end ||

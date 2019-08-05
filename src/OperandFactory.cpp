@@ -17,6 +17,9 @@
 
 OperandFactory* OperandFactory::_instance = nullptr;
 
+OperandFactory::OperandFactory(const OperandFactory&) = default;
+OperandFactory &OperandFactory::operator=(const OperandFactory&) = default;
+
 OperandFactory *OperandFactory::getInstance() {
 	if (OperandFactory::_instance == nullptr)
 		OperandFactory::_instance = new OperandFactory();

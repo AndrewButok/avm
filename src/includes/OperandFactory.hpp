@@ -32,8 +32,8 @@ private:
 	const IOperand *createDouble(const std::string &value) const;
 
 	OperandFactory();
-	OperandFactory(const OperandFactory&) = default;
-	OperandFactory &operator=(const OperandFactory&) = default;
+	OperandFactory(const OperandFactory&);
+	OperandFactory &operator=(const OperandFactory&);
 public:
 	typedef IOperand::eOperandType eOperandType;
 

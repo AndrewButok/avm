@@ -28,8 +28,6 @@ private:
 
 	OperandFactory	*_operandFactory;
 	Executor		*_executor;
-	std::set<eTokenType> _operators;
-	std::set<eTokenType> _constructors;
 
 	Parser();
 	Parser(const Parser&) = default;

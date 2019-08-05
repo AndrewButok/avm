@@ -35,6 +35,9 @@ Executor::Executor() {
 	this->_operators->push_back(&IOperand::operator%);
 }
 
+Executor::Executor(const Executor &executor) = default;
+Executor &Executor::operator=(const Executor &) = default;
+
 Executor::~Executor() {
     for (auto operand: *this->_stack){
         delete operand;
