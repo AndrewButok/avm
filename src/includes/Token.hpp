@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 14:08:37 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 12:28:19 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ public:
 
 	explicit Token(std::string value);
 	explicit Token(eTokenType type);
-	Token(const Token&) = default;
-	Token &operator=(const Token&) = default;
-	virtual ~Token() = default;
+	Token(const Token&);
+	Token &operator=(const Token&);
+	virtual ~Token();
 	const std::string &getValue() const;
 	eTokenType getType() const;
 

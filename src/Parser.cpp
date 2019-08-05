@@ -6,13 +6,16 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:26 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 14:04:58 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
 Parser* Parser::_instance = nullptr;
+
+Parser::Parser(const Parser&) = default;
+Parser &Parser::operator=(const Parser&) = default;
 
 Parser::Parser() {
 	_operandFactory = OperandFactory::getInstance();

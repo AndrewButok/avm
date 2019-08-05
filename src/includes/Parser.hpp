@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:15 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 11:16:10 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ private:
 	Executor		*_executor;
 
 	Parser();
-	Parser(const Parser&) = default;
-	Parser &operator=(const Parser&) = default;
+	Parser(const Parser&);
+	Parser &operator=(const Parser&);
 	void _checkTokens(std::vector<Token *>&);
 	static void _deleteTokens(std::vector<Token *> *);
 	const IOperand *makeOperand(Token* constructorToken, Token* rawValueToken);

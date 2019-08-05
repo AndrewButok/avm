@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:21 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 12:28:19 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,9 @@ std::set<Token::eTokenType> Token::_constructors = {
 		eTokenType::ConstructorDouble
 };
 
+Token::Token(const Token&) = default;
+Token &Token::operator=(const Token&) = default;
+Token::~Token() = default;
 
 Token::Token(): _value(""), _type(eTokenType::RawValue) {}
 Token::Token(std::string value) : _value(std::move(value)), _type(eTokenType::RawValue) {}
