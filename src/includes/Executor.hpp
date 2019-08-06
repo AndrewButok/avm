@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 18:51:02 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/06 13:42:37 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 20:32:31 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,19 @@
 #include "IOperand.hpp"
 #include "OperandFactory.hpp"
 
+class Executor;
+
+using ExecutorPtr = std::shared_ptr<Executor>;
+
 class Executor {
 private:
 	enum class eOperatorType: unsigned int;
-	typedef const IOperand* (IOperand::*Operator)(const IOperand&) const;
-	static Executor *_instance;
+	typedef IOperandPtr (IOperand::*Operator)(const IOperand&) const;
+	static ExecutorPtr _instance;
 	bool _alive;
 	std::vector<IOperandPtr> _stack;
 	std::vector<Operator> _operators;
-	OperandFactory *_operandFactory;
+	OperandFactoryPtr _operandFactory;
 
 	Executor();
 	Executor(const Executor &executor);
@@ -44,7 +48,7 @@ private:
 
 public:
 	virtual ~Executor();
-	static Executor *getInstance();
+	static ExecutorPtr getInstance();
 	void reset();
 	void kill();
 
@@ -69,6 +73,5 @@ public:
 			explicit ExecutorException(std::string message);
 	};
 };
-
 
 #endif //AVM_EXECUTOR_HPP

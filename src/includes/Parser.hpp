@@ -6,28 +6,31 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:15 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 20:32:08 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AVM_PARSER_HPP
 #define AVM_PARSER_HPP
 
-#include <set>
 #include "OperandFactory.hpp"
 #include "Executor.hpp"
 #include "Lexer.hpp"
 #include "AVMRuntimeError.hpp"
 
+class Parser;
+
+using ParserPtr = std::shared_ptr<Parser>;
+
 class Parser {
 private:
 	typedef Token::eTokenType eTokenType;
 	typedef OperandFactory::eOperandType eOperandType;
-	static Parser *_instance;
+	static ParserPtr _instance;
 
 
-	OperandFactory	*_operandFactory;
-	Executor		*_executor;
+	OperandFactoryPtr	_operandFactory;
+	ExecutorPtr			_executor;
 
 	Parser();
 	Parser(const Parser&);
@@ -37,7 +40,7 @@ private:
 	eTokenType _execute(std::vector<TokenPtr> &);
 public:
 	virtual ~Parser();
-	static Parser *getInstance();
+	static ParserPtr getInstance();
 
 	eTokenType parse(const std::string &);
 	void cleanExecutor();

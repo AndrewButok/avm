@@ -6,30 +6,31 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:26 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/06 13:46:06 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 20:39:04 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
-Parser* Parser::_instance = nullptr;
+ParserPtr Parser::_instance = nullptr;
 
-Parser::Parser(const Parser&) = default;
-Parser &Parser::operator=(const Parser&) = default;
+Parser::Parser(const Parser&){
+};
+Parser &Parser::operator=(const Parser&){
+	return *this;
+};
 
 Parser::Parser() {
 	_operandFactory = OperandFactory::getInstance();
 	_executor = Executor::getInstance();
 }
 
-Parser::~Parser() {
-	delete _executor;
-}
+Parser::~Parser() = default;
 
-Parser *Parser::getInstance() {
-	if (_instance == nullptr)
-		_instance = new Parser();
-	return _instance;
+ParserPtr Parser::getInstance() {
+	if (!Parser::_instance)
+		Parser::_instance = ParserPtr{new Parser()};
+	return Parser::_instance;
 }
 
 Parser::eTokenType Parser::parse(const std::string &row) {

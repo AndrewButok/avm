@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 15:03:13 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 11:11:29 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 20:32:08 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,24 @@
 #include "IOperand.hpp"
 #include "AVMRuntimeError.hpp"
 
+class OperandFactory;
+
+using OperandFactoryPtr = std::shared_ptr<OperandFactory>;
+
 class OperandFactory {
 private:
-	typedef const IOperand* (OperandFactory::*CreateTypeFunc)(const std::string &) const;
-	static OperandFactory *_instance;
+	typedef IOperandPtr (OperandFactory::*CreateTypeFunc)(const std::string &) const;
+	static OperandFactoryPtr _instance;
 
-	std::vector<CreateTypeFunc> *_functions;
+	std::unique_ptr<std::vector<CreateTypeFunc>> _functions;
 
 	int _getPrecision(const std::string &value)const;
 
-	const IOperand *createInt8(const std::string &value) const;
-	const IOperand *createInt16(const std::string &value) const;
-	const IOperand *createInt32(const std::string &value) const;
-	const IOperand *createFloat(const std::string &value) const;
-	const IOperand *createDouble(const std::string &value) const;
+	IOperandPtr createInt8(const std::string &value) const;
+	IOperandPtr createInt16(const std::string &value) const;
+	IOperandPtr createInt32(const std::string &value) const;
+	IOperandPtr createFloat(const std::string &value) const;
+	IOperandPtr createDouble(const std::string &value) const;
 
 	OperandFactory();
 	OperandFactory(const OperandFactory&);
@@ -38,7 +42,7 @@ public:
 	typedef IOperand::eOperandType eOperandType;
 
 	virtual ~OperandFactory();
-	static OperandFactory *getInstance();
+	static OperandFactoryPtr getInstance();
 	IOperandPtr createOperand(eOperandType type, const std::string &value);
 	IOperandPtr createOperand(IOperand::eOperandType type, IOperandPtr &);
 
@@ -47,6 +51,5 @@ public:
 		explicit OperandFactoryException(std::string message);
 	};
 };
-
 
 #endif //AVM_OPERANDFACTORY_HPP

@@ -8,7 +8,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/06 14:17:29 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 20:39:04 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 #include <boost/lexical_cast.hpp>
 #include "Executor.hpp"
 
-Executor* Executor::_instance = nullptr;
+ExecutorPtr Executor::_instance;
 
-Executor *Executor::getInstance() {
-	if (_instance == nullptr)
-		_instance = new Executor();
+ExecutorPtr Executor::getInstance() {
+	if (!Executor::_instance)
+		_instance = ExecutorPtr(new Executor());
 	return _instance;
 }
 
@@ -34,16 +34,13 @@ Executor::Executor() {
 	this->_operators.push_back(&IOperand::operator%);
 }
 
-Executor::Executor(const Executor &){
-
-}
+Executor::Executor(const Executor &) {}
 
 Executor &Executor::operator=(const Executor &){
 	return *this;
 }
 
 Executor::~Executor() {
-	delete this->_operandFactory;
 }
 
 void Executor::_checkStack(unsigned int needed) const {

@@ -41,11 +41,11 @@ public:
 	int					getPrecision() const override;
 	eOperandType 		getType() const override;
 
-	const IOperand		*operator+(const IOperand &) const override ;
-	const IOperand		*operator-(const IOperand &) const override ;
-	const IOperand		*operator/(const IOperand &) const override ;
-	const IOperand		*operator*(const IOperand &) const override ;
-	const IOperand		*operator%(const IOperand &) const override ;
+	IOperandPtr operator+(const IOperand &) const override ;
+	IOperandPtr operator-(const IOperand &) const override ;
+	IOperandPtr operator/(const IOperand &) const override ;
+	IOperandPtr operator*(const IOperand &) const override ;
+	IOperandPtr operator%(const IOperand &) const override ;
 	bool				operator>(const IOperand &operand) const override;
 	bool				operator<(const IOperand &operand) const override;
 
@@ -114,7 +114,7 @@ IOperand::eOperandType Operand<double>::getType() const {
 }
 
 template<typename Base>
-const IOperand *Operand<Base>::operator+(const IOperand &right_operand) const {
+IOperandPtr Operand<Base>::operator+(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val > 0 &&
@@ -123,26 +123,26 @@ const IOperand *Operand<Base>::operator+(const IOperand &right_operand) const {
 	if (casted_ro._val < 0 &&
 		this->_val < std::numeric_limits<Base>::min() - casted_ro._val)
 		throw OperandException("Operand underflow");
-	return  new Operand<Base>(this->_val + casted_ro._val, 0);
+	return  std::make_unique<Operand<Base>>(this->_val + casted_ro._val, 0);
 }
 template <>
-const IOperand *Operand<float>::operator+(const IOperand &right_operand) const {
+IOperandPtr Operand<float>::operator+(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	return  new Operand<float>(this->_val + casted_ro._val,
+	return  std::make_unique<Operand<float>>(this->_val + casted_ro._val,
 							this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template <>
-const IOperand *Operand<double>::operator+(const IOperand &right_operand) const {
+IOperandPtr Operand<double>::operator+(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	return  new Operand<double>(this->_val + casted_ro._val,
+	return  std::make_unique<Operand<double>>(this->_val + casted_ro._val,
 							this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template<typename Base>
-const IOperand *Operand<Base>::operator-(const IOperand &right_operand) const {
+IOperandPtr Operand<Base>::operator-(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val > 0 &&
@@ -151,54 +151,54 @@ const IOperand *Operand<Base>::operator-(const IOperand &right_operand) const {
 	if (casted_ro._val < 0 &&
 		this->_val > std::numeric_limits<Base>::max() + casted_ro._val)
 		throw OperandException("Operand overflow");
-	return  new Operand<Base>(this->_val - casted_ro._val, 0);
+	return  std::make_unique<Operand<Base>>(this->_val - casted_ro._val, 0);
 }
 
 template<>
-const IOperand *Operand<float>::operator-(const IOperand &right_operand) const {
+IOperandPtr Operand<float>::operator-(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	return  new Operand<float>(this->_val - casted_ro._val,
+	return  std::make_unique<Operand<float>>(this->_val - casted_ro._val,
 			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template<>
-const IOperand *Operand<double>::operator-(const IOperand &right_operand) const {
+IOperandPtr Operand<double>::operator-(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	return  new Operand<double>(this->_val - casted_ro._val,
+	return  std::make_unique<Operand<double>>(this->_val - casted_ro._val,
 			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 }
 
 template<typename Base>
-const IOperand *Operand<Base>::operator/(const IOperand &right_operand) const {
+IOperandPtr Operand<Base>::operator/(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
 		throw OperandException("Division by a zero");
-	auto result = new Operand<Base>(this->_val / casted_ro._val, 0);
+	auto result = std::make_unique<Operand<Base>>(this->_val / casted_ro._val, 0);
 	return result;
 }
 
 template<>
-const IOperand *Operand<float>::operator/(const IOperand &right_operand) const {
+IOperandPtr Operand<float>::operator/(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	auto result = new Operand<float>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
+	auto result = std::make_unique<Operand<float>>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
 	return result;
 }
 
 template<>
-const IOperand *Operand<double>::operator/(const IOperand &right_operand) const {
+IOperandPtr Operand<double>::operator/(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	auto result = new Operand<double>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
+	auto result = std::make_unique<Operand<double >>(this->_val / casted_ro._val, this->_precision + casted_ro._precision);
 	return result;
 }
 
 
 template<typename Base>
-const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
+IOperandPtr Operand<Base>::operator*(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if ((casted_ro._val > 0 && this->_val > 0
@@ -213,52 +213,52 @@ const IOperand *Operand<Base>::operator*(const IOperand &right_operand) const {
 			&&
 			this->_val < std::numeric_limits<Base>::min() / casted_ro._val))
 		throw OperandException("Operand underflow");
-	auto result = new Operand<Base>(this->_val * casted_ro._val, 0);
+	auto result = std::make_unique<Operand<Base>>(this->_val * casted_ro._val, 0);
 	return result;
 }
 
 template<>
-const IOperand *Operand<float>::operator*(const IOperand &right_operand) const {
+IOperandPtr Operand<float>::operator*(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	auto result = new Operand<float>(this->_val * casted_ro._val,
+	auto result = std::make_unique<Operand<float>>(this->_val * casted_ro._val,
 									 this->_precision + casted_ro._precision);
 	return result;
 }
 
 template<>
-const IOperand *Operand<double>::operator*(const IOperand &right_operand) const {
+IOperandPtr Operand<double>::operator*(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	auto result = new Operand<double>(this->_val * casted_ro._val,
+	auto result = std::make_unique<Operand<double>>(this->_val * casted_ro._val,
 									  this->_precision + casted_ro._precision);
 	return result;
 }
 
 template<typename Base>
-const IOperand *Operand<Base>::operator%(const IOperand &right_operand) const {
+IOperandPtr Operand<Base>::operator%(const IOperand &right_operand) const {
 	Operand<Base>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<Base> &>(right_operand);
 	if (casted_ro._val == 0)
 		throw OperandException("Division by a zero");
-	auto result = new Operand<Base>(this->_val % casted_ro._val, 0);
+	auto result = std::make_unique<Operand<Base>>(this->_val % casted_ro._val, 0);
 	return result;
 }
 
 template<>
-const IOperand *Operand<float>::operator%(const IOperand &right_operand) const {
+IOperandPtr Operand<float>::operator%(const IOperand &right_operand) const {
 	Operand<float>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<float> &>(right_operand);
-	auto result = new Operand<float>(fmod(this->_val, casted_ro._val),
+	auto result = std::make_unique<Operand<float>>(fmod(this->_val, casted_ro._val),
 			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 	return result;
 }
 
 template<>
-const IOperand *Operand<double>::operator%(const IOperand &right_operand) const {
+IOperandPtr Operand<double>::operator%(const IOperand &right_operand) const {
 	Operand<double>::_checkType(*this, right_operand);
 	auto casted_ro = dynamic_cast<const Operand<double> &>(right_operand);
-	auto result = new Operand<double>(fmod(this->_val, casted_ro._val),
+	auto result = std::make_unique<Operand<double>>(fmod(this->_val, casted_ro._val),
 			this->_precision < casted_ro._precision ? casted_ro._precision : this->_precision);
 	return result;
 }

@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 13:58:33 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 13:11:36 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 16:23:06 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "AVMRuntimeError.hpp"
 
 void parse_rows(std::vector<std::string> vector,
-		const std::string& stream_name, Parser& parser) {
+		const std::string& stream_name, ParserPtr &parser) {
 	if (vector.empty())
 		return;
 	auto completed_instruction = Token::eTokenType::RawValue;
@@ -24,7 +24,7 @@ void parse_rows(std::vector<std::string> vector,
 		try {
 			if (vector[i].empty())
 				continue;
-			completed_instruction = parser.parse(vector[i]);
+			completed_instruction = parser->parse(vector[i]);
 			if (completed_instruction == Token::eTokenType::Exit)
 				break;
 		} catch (AVMRuntimeError &ex) {
@@ -35,7 +35,7 @@ void parse_rows(std::vector<std::string> vector,
 	if (completed_instruction != Token::eTokenType::Exit)
 		std::cerr << "Runtime error of \"" << stream_name << "\" at line "
 			<< vector.size() << ": No exit instruction at the end fo the file" << std::endl;
-	parser.cleanExecutor();
+	parser->cleanExecutor();
 }
 
 std::vector<std::string>  parse_file(std::istream& stream) {
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 	auto parser = Parser::getInstance();
 	if (argc == 1) {
 		auto rows = parse_cin(std::cin);
-		parse_rows(rows, "stdin", *parser);
+		parse_rows(rows, "stdin", parser);
 	}
 	else {
 		for (int i = 1; i < argc; i++) {
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 				auto stream = std::ifstream(argv[i]);
 				if (errno == 0) {
 					auto rows = parse_file(stream);
-					parse_rows(rows, argv[i], *parser);
+					parse_rows(rows, argv[i], parser);
 				} else
 					std::cerr << argv[i] << strerror(errno) << std::endl;
 			} else {
@@ -85,7 +85,6 @@ int main(int argc, char** argv) {
 			}
 		}
 	}
-	delete parser;
 	system("leaks Abstract-VM");
 	return 0;
 }
