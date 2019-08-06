@@ -21,12 +21,12 @@ class Lexer{
 private:
 	typedef Token::eTokenType eType;
 
-	static Token* _getNonValueToken(const std::string &row, size_t &pos);
-	static Token* _getValueToken(const std::string &row, size_t &pos);
-	static void _trimTokenVector(std::vector<Token *> &vector);
-	static void _concatRaw(std::vector<Token *> &vector);
+	static TokenPtr _getNonValueToken(const std::string &row, size_t &pos);
+	static TokenPtr _getValueToken(const std::string &row, size_t &pos);
+	static void _trimTokenVector(std::vector<TokenPtr> &vector);
+	static void _concatRaw(std::vector<TokenPtr> &vector);
 public:
-	static std::vector<Token *> *tokenize(const std::string &row);
+	static std::vector<TokenPtr> tokenize(const std::string &row);
 };
 
 #endif

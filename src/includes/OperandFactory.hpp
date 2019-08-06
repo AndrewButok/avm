@@ -39,8 +39,8 @@ public:
 
 	virtual ~OperandFactory();
 	static OperandFactory *getInstance();
-	const IOperand *createOperand(eOperandType type, const std::string &value);
-	const IOperand *createOperand(IOperand::eOperandType type, const IOperand *);
+	IOperandPtr createOperand(eOperandType type, const std::string &value);
+	IOperandPtr createOperand(IOperand::eOperandType type, IOperandPtr &);
 
 	class OperandFactoryException: public AVMRuntimeError{
 	public:

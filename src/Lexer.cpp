@@ -6,96 +6,85 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/26 23:36:42 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 15:07:11 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 14:09:41 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Lexer.hpp"
 
-std::vector<Token *> *Lexer::tokenize(const std::string &row) {
-	auto *result = new std::vector<Token *>();
+std::vector<TokenPtr> Lexer::tokenize(const std::string &row) {
+	auto result = std::vector<TokenPtr>();
 	for (size_t pos = 0; pos < row.size(); pos++){
-		auto *token = _getNonValueToken(row, pos);
+		auto token = _getNonValueToken(row, pos);
 		if (token != nullptr) {
 			if (token->getType() == eType::CommentBegin) {
-				delete token;
 				break;
 			}
-			result->push_back(token);
+			result.push_back(std::move(token));
 			continue;
 		}
 		token = _getValueToken(row, pos);
-		result->push_back(token);
+		result.push_back(std::move(token));
 	}
-	_trimTokenVector(*result);
-	_concatRaw(*result);
+	_trimTokenVector(result);
+	_concatRaw(result);
 	return result;
 }
 
-Token *Lexer::_getNonValueToken(const std::string &row, size_t &pos) {
+TokenPtr Lexer::_getNonValueToken(const std::string &row, size_t &pos) {
 	for (auto &token: Token::_nonValueTokens) {
 		if (row.find(token.first, pos) == pos) {
 			pos += token.first.size() - 1;
-			return new Token(token.second);
+			return std::make_unique<Token>(token.second);
 		}
 	}
-	return nullptr;
+	return TokenPtr();
 }
 
-Token *Lexer::_getValueToken(const std::string &row, size_t &pos) {
+TokenPtr Lexer::_getValueToken(const std::string &row, size_t &pos) {
 	for (size_t i = pos + 1; i < row.size(); i++) {
 		for (auto &token: Token::_nonValueTokens) {
 			if (row.find(token.first, i) == i) {
 				auto val = row.substr(pos, i - pos);
-				auto result = new Token(val);
 				pos = i - 1;
-				return result;
+				return std::make_unique<Token>(val);
 			}
 		}
 	}
 	std::string val = row.substr(pos, row.size());
-	return new Token(val);
+	return std::make_unique<Token>(val);
 }
 
-void Lexer::_trimTokenVector(std::vector<Token *> &vector) {
+void Lexer::_trimTokenVector(std::vector<TokenPtr> &vector) {
 	if (vector.empty())
 		return;
 	while (!vector.empty() && vector[vector.size() - 1]->getType() == eType::WS) {
-		delete vector[vector.size() - 1];
 		vector.pop_back();
 	}
 	while (!vector.empty() && (*vector.begin())->getType() == eType::WS) {
-		delete *vector.begin();
 		vector.erase(vector.begin());
 	}
 	for(auto iter = vector.begin(); iter != vector.end(); iter++) {
 		if (iter + 1 != vector.end()) {
-			auto t1 = *iter,
-				t2 = *(iter + 1);
-			while (t1->getType() == eType::WS && t2->getType() == eType::WS) {
-				delete *(iter + 1);
+			while ((*iter)->getType() == eType::WS && (*(iter + 1))->getType() == eType::WS) {
 				vector.erase(iter + 1);
-				t2 = *(iter + 1);
 			}
 		}
 	}
 }
 
-void Lexer::_concatRaw(std::vector<Token *> &vector) {
+void Lexer::_concatRaw(std::vector<TokenPtr> &vector) {
 	for(auto iter = vector.begin(); iter != vector.end(); iter++) {
 		if ((*iter)->getType() == eType::WS) {
-			auto l = *(iter - 1),
-				r = *(iter + 1);
+			auto &l = *(iter - 1),
+				&r = *(iter + 1);
 			if (l->getType() == eType::RawValue && l->getType() == r->getType())
 			{
 				iter--;
-				delete *(iter + 1);
 				vector.erase(iter + 1);
 				auto concat_val = l->getValue() + r->getValue();
-				delete *(iter + 1);
 				vector.erase(iter + 1);
-				*iter = new Token(concat_val);
-				delete l;
+				*iter = std::make_unique<Token>(concat_val);
 			}
 		}
 	}

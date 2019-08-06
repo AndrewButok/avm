@@ -32,10 +32,9 @@ private:
 	Parser();
 	Parser(const Parser&);
 	Parser &operator=(const Parser&);
-	void _checkTokens(std::vector<Token *>&);
-	static void _deleteTokens(std::vector<Token *> *);
-	const IOperand *makeOperand(Token* constructorToken, Token* rawValueToken);
-	eTokenType _execute(std::vector<Token *> &);
+	void _checkTokens(std::vector<TokenPtr>&);
+	IOperandPtr makeOperand(TokenPtr &constructorToken, TokenPtr &rawValueToken);
+	eTokenType _execute(std::vector<TokenPtr> &);
 public:
 	virtual ~Parser();
 	static Parser *getInstance();

@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:26 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 13:46:06 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,18 @@ Parser *Parser::getInstance() {
 }
 
 Parser::eTokenType Parser::parse(const std::string &row) {
-	auto *tokens = Lexer::tokenize(row);
-	auto &tokens_ref = *tokens;
+	auto tokens = Lexer::tokenize(row);
 	try {
-		_checkTokens(tokens_ref);
-		auto rv = _execute(tokens_ref);
-		_deleteTokens(tokens);
+		_checkTokens(tokens);
+		auto rv = _execute(tokens);
 		return rv;
 	} catch (AVMRuntimeError &ex) {
-		_deleteTokens(tokens);
+		_executor->kill();
 		throw ex;
 	}
 }
 
-void Parser::_checkTokens(std::vector<Token *> &tokens) {
+void Parser::_checkTokens(std::vector<TokenPtr> &tokens) {
     if (tokens.empty())
         return;
     auto iter = tokens.begin();
@@ -94,19 +92,19 @@ void Parser::_checkTokens(std::vector<Token *> &tokens) {
 		throw ParserException("Invalid argument");
 }
 
-Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
+Parser::eTokenType Parser::_execute(std::vector<TokenPtr> &tokens) {
     if (tokens.empty())
         return  eTokenType::RawValue;
-	const IOperand *operand = nullptr;
+	IOperandPtr operandPtr;
 	switch (tokens[0]->getType()){
 		case eTokenType::Push:{
-			operand = makeOperand(tokens[2], tokens[4]);
-			_executor->pushToStack(operand);
+			operandPtr = IOperandPtr{makeOperand(tokens[2], tokens[4])};
+			_executor->pushToStack(operandPtr);
 			break;
 		}
 		case eTokenType::Assert:{
-			operand = makeOperand(tokens[2], tokens[4]);
-			_executor->assertFromStack(operand);
+			operandPtr = IOperandPtr{makeOperand(tokens[2], tokens[4])};
+			_executor->assertFromStack(operandPtr);
 			break;
 		}
 		case eTokenType::Pop:
@@ -156,16 +154,7 @@ Parser::eTokenType Parser::_execute(std::vector<Token *> &tokens) {
 	return tokens[0]->getType();
 }
 
-void Parser::_deleteTokens(std::vector<Token *> *tokens) {
-	if (!tokens->empty()) {
-		for(auto token_ref: *tokens)
-			delete token_ref;
-	}
-	delete tokens;
-}
-
-const IOperand *
-Parser::makeOperand(Token *constructorToken, Token *rawValueToken) {
+IOperandPtr Parser::makeOperand(TokenPtr &constructorToken, TokenPtr &rawValueToken) {
 	if (constructorToken->getType() == eTokenType::ConstructorInt8)
 		return _operandFactory->createOperand(eOperandType::Int8, rawValueToken->getValue());
 	if (constructorToken->getType() == eTokenType::ConstructorInt16)
@@ -181,7 +170,7 @@ Parser::makeOperand(Token *constructorToken, Token *rawValueToken) {
 }
 
 void Parser::cleanExecutor() {
-	this->_executor->cleanStack();
+	this->_executor->reset();
 }
 
 Parser::ParserException::ParserException(std::string message) : AVMRuntimeError(std::move(message)) {

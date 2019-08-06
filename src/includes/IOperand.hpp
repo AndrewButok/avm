@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/18 23:29:14 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/01 12:37:59 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 13:36:11 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,7 @@ public:
 	};
 };
 
+using IOperandPtr = std::unique_ptr<const IOperand>;
+using StrPtr = std::unique_ptr<const std::string>;
 
 #endif //AVM_IOPERAND_HPP

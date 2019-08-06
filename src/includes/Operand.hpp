@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:24:43 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 11:47:39 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 13:36:11 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <MacTypes.h>
 #include "IOperand.hpp"
 
 template <typename Base>
@@ -308,23 +309,19 @@ void Operand<Base>::_checkType(const IOperand &lo, const IOperand& ro) {
 
 template<typename Base>
 bool Operand<Base>::operator<(const IOperand &operand) const {
-	const std::string *thisStr = &(this->toString());
-	const std::string *operandStr = &(operand.toString());
+	auto thisStr = StrPtr{&(this->toString())};
+	auto operandStr = StrPtr{&(operand.toString())};
 	auto a = boost::lexical_cast<double>(*thisStr),
 			b = boost::lexical_cast<double>(*operandStr);
-	delete thisStr;
-	delete operandStr;
 	return  a < b;
 }
 
 template<typename Base>
 bool Operand<Base>::operator>(const IOperand &operand) const {
-	const std::string *thisStr = &(this->toString());
-	const std::string *operandStr = &(operand.toString());
+	auto thisStr = StrPtr{&(this->toString())};
+	auto operandStr = StrPtr{&(operand.toString())};
 	auto a = boost::lexical_cast<double>(*thisStr),
 			b = boost::lexical_cast<double>(*operandStr);
-	delete thisStr;
-	delete operandStr;
 	return a > b;
 }
 

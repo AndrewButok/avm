@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 14:08:37 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/05 12:41:01 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 13:56:53 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 
 #include <string>
+#include <memory>
 #include <map>
 #include <set>
 
@@ -68,5 +69,7 @@ public:
 		Log = 26
 	};
 };
+
+using TokenPtr = std::unique_ptr<Token>;
 
 #endif //AVM_TOKEN_HPP

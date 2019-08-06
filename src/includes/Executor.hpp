@@ -6,7 +6,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 18:51:02 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/04 11:36:33 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/06 13:42:37 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,9 @@ private:
 	enum class eOperatorType: unsigned int;
 	typedef const IOperand* (IOperand::*Operator)(const IOperand&) const;
 	static Executor *_instance;
-	std::vector<const IOperand *> *_stack;
-	std::vector<Operator> *_operators;
+	bool _alive;
+	std::vector<IOperandPtr> _stack;
+	std::vector<Operator> _operators;
 	OperandFactory *_operandFactory;
 
 	Executor();
@@ -44,12 +45,13 @@ private:
 public:
 	virtual ~Executor();
 	static Executor *getInstance();
-	void cleanStack();
+	void reset();
+	void kill();
 
-	void pushToStack(const IOperand *operand);
+	void pushToStack(IOperandPtr &);
 	void popFromStack();
 	void dumpStack();
-	void assertFromStack(const IOperand *operand);
+	void assertFromStack(IOperandPtr &);
 	void add();
 	void sub();
 	void mul();

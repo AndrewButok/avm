@@ -87,52 +87,27 @@ const IOperand *OperandFactory::createDouble(const std::string &value) const {
 	}
 }
 
-const IOperand *OperandFactory::createOperand(OperandFactory::eOperandType type,
+IOperandPtr OperandFactory::createOperand(OperandFactory::eOperandType type,
 											  const std::string &value) {
 	if (type == eOperandType::UnknownOperand)
 		throw OperandFactoryException("Factory method have token invalid operand eType");
 	auto ctf = (*this->_functions)[static_cast<unsigned int>(type)];
-	return ((this->*ctf)(value));
+	return IOperandPtr{((this->*ctf)(value))};
 }
 
 OperandFactory::~OperandFactory() {
 	delete this->_functions;
 }
 
-const IOperand *OperandFactory::createOperand(IOperand::eOperandType type, const IOperand *operand) {
-	if (operand == nullptr)
-		return nullptr;
-	if (operand->getType() == IOperand::eOperandType::UnknownOperand ||
-		operand->getType() >= type)
+IOperandPtr OperandFactory::createOperand(IOperand::eOperandType type, IOperandPtr &operandPtr) {
+	if (!operandPtr)
+		return IOperandPtr();
+	if (operandPtr->getType() == IOperand::eOperandType::UnknownOperand ||
+		operandPtr->getType() >= type)
 		throw OperandFactoryException("Operand eType is greater than eType sent to function");
-	const IOperand *result = nullptr;
-	auto strOperandVal = &(operand->toString());
-	try {
-		switch (type){
-			case IOperand::eOperandType::Int8:
-				result = this->createOperand(IOperand::eOperandType ::Int8, *strOperandVal);
-				break;
-			case IOperand::eOperandType::Int16:
-				result = this->createOperand(IOperand::eOperandType ::Int16, *strOperandVal);
-				break;
-			case IOperand::eOperandType::Int32:
-				result = this->createOperand(IOperand::eOperandType ::Int32, *strOperandVal);
-				break;
-			case IOperand::eOperandType::Float:
-				result = this->createOperand(IOperand::eOperandType ::Float, *strOperandVal);
-				break;
-			case IOperand::eOperandType::Double:
-				result = this->createOperand(IOperand::eOperandType ::Double, *strOperandVal);
-				break;
-			default:
-				throw OperandFactoryException("Unknown copy error");
-		}
-		delete strOperandVal;
-		return result;
-	} catch (AVMRuntimeError &ex){
-		delete strOperandVal;
-		throw ex;
-	}
+	auto strOperandVal = std::unique_ptr<const std::string>{&(operandPtr->toString())};
+	auto ctf = (*this->_functions)[static_cast<unsigned int>(type)];
+	return IOperandPtr{((this->*ctf)(*strOperandVal))};
 }
 
 int OperandFactory::_getPrecision(const std::string &value) const {

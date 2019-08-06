@@ -13,7 +13,7 @@
 # Project name
 NAME = Abstract-VM
 # C++ compiler with flags
-COMPILER = clang++ -Wall -Werror -Wextra -std=c++11
+COMPILER = clang++ -Wall -Werror -Wextra -std=c++14
 # Includes
 INCLUDEDIR = ./src/includes/
 INCLUDEFILES  = IOperand.hpp Operand.hpp OperandFactory.hpp Executor.hpp \
