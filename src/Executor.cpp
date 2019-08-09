@@ -8,7 +8,7 @@
 /*   By: abutok <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/25 12:10:52 by abutok            #+#    #+#             */
-/*   Updated: 2019/08/06 20:39:04 by abutok           ###   ########.fr       */
+/*   Updated: 2019/08/09 10:20:16 by abutok           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,13 +122,11 @@ void Executor::_executeArithmeticOperator(eOperatorType type) {
 		if ((*(iter + 1))->getType() > (*iter)->getType()) {
 			auto buf = this->_operandFactory->createOperand(
 					(*(iter + 1))->getType(), (*iter));
-			//delete *iter;
 			*iter = std::move(buf);
 		}
 		else {
 			auto buf = this->_operandFactory->createOperand(
 					(*iter)->getType(), *(iter + 1));
-			//delete *(iter + 1);
 			*(iter + 1) = std::move(buf);
 		}
 	}
